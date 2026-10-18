@@ -1,0 +1,2 @@
+import Link from 'next/link';import Header from '@/components/Header';
+export default function Apply(){return <><Header/><main className="formWrap"><div className="form"><div className="tag">// ACCESS REQUEST</div><h1>Request access.</h1><p>Scamtastic is invite-only. The application system is being prepared; we aren't collecting personal information until review and abuse protections are ready.</p><div className="status">APPLICATIONS OPENING SOON</div><Link href="/" className="button secondary wide">← Return to the network</Link></div></main></>}
