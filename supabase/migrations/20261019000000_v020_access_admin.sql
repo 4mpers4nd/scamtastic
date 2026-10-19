@@ -940,8 +940,16 @@ begin
     insert into public.profiles(id, username, display_name, bio, is_banned, created_at)
       values (v_user, v_app.username, v_app.username, '', false, now());
   end if;
+    -- Complete referral attribution once the applicant has an auth.users account.
+  -- Only fill missing attribution; never overwrite an existing referred user.
+  update public.referrals
+    set referred_id = v_user
+    where application_id = v_app.id
+      and referred_id is null;
+
   update public.applications set activation_status = 'claimed'
     where id = v_app.id and activation_status <> 'claimed';
+
   return true;
 end
 $$;
