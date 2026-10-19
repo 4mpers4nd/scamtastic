@@ -144,6 +144,62 @@
   font-size: 12px;
 }
 
+.activityPage {
+  width: min(100% - 32px, 1000px);
+  min-height: calc(100svh - 76px);
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 64px) 0;
+}
+
+.activityPage .adminPageHeading p {
+  max-width: 620px;
+}
+
+.followingActivityFeed {
+  display: grid;
+  gap: 14px;
+}
+
+.followingActivityFeed .panelHeading {
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.followingActivityFeed .panelHeading h2 {
+  margin: 5px 0 0;
+}
+
+.activityFeedList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activityFeedItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+}
+
+.activityFeedItem p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.activityFeedItem a {
+  color: var(--color-cyan);
+}
+
+.activityFeedItem time {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
 @media (max-width: 800px) {
   .headerPrimaryLinks,
   .headerGuestActions {
@@ -163,6 +219,17 @@
   }
 
   .pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .activityFeedItem {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .followingActivityFeed .panelHeading {
     align-items: flex-start;
     flex-direction: column;
   }

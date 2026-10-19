@@ -31,7 +31,7 @@ export default async function Header() {
   }
 
   const primaryLinks = user
-    ? [['Network', '/network'], ['Dashboard', '/game']]
+    ? [['Network', '/network'], ['Activity', '/activity'], ['Dashboard', '/game']]
     : [['About', '/#about'], ['Network', '/network']];
   return (
     <header className="header">

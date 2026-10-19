@@ -20,7 +20,9 @@ export function parsePublicFollowData(value) {
     value.followingCount < 0 ||
     typeof value.isFollowing !== 'boolean' ||
     !Array.isArray(value.followers) ||
+    value.followers.length > 20 ||
     !Array.isArray(value.following) ||
+    value.following.length > 20 ||
     !value.followers.every(isFollowMember) ||
     !value.following.every(isFollowMember)
   ) {

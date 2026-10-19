@@ -33,4 +33,5 @@ test('public follow data rejects malformed counts, usernames, and member lists',
   assert.equal(parsePublicFollowData({ ...valid, followersCount: -1 }), null);
   assert.equal(parsePublicFollowData({ ...valid, followers: [{ username: 'bad@email.com', displayName: null }] }), null);
   assert.equal(parsePublicFollowData({ ...valid, following: {} }), null);
+  assert.equal(parsePublicFollowData({ ...valid, following: Array(21).fill({ username: 'Player_1', displayName: null }) }), null);
 });
