@@ -1,4 +1,4 @@
-# SCAMTASTIC v0.2.0
+# SCAMTASTIC v0.2.1
 
 An invite-only, free-to-play social strategy game. SCAMCOINS have no real-world value.
 
