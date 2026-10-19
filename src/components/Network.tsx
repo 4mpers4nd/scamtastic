@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import NeuralCanvas from '@/components/neural/NeuralCanvas';
+import SystemNodePanel from '@/components/neural/SystemNodePanel';
 import { parseNeuralSnapshot, type NeuralSnapshot } from '@/lib/neural/types';
 
 export default function Network() {
   const [snapshot, setSnapshot] = useState<NeuralSnapshot | null>(null);
   const [unavailable, setUnavailable] = useState(false);
+  const [systemSelected, setSystemSelected] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -44,11 +46,15 @@ export default function Network() {
   }
 
   return (
-    <NeuralCanvas
-      className="networkHeroCanvas"
-      nodes={snapshot.nodes}
-      connections={snapshot.connections}
-      autoRotate
-    />
+    <>
+      <NeuralCanvas
+        className="networkHeroCanvas"
+        nodes={snapshot.nodes}
+        connections={snapshot.connections}
+        autoRotate
+        onSystemSelect={() => setSystemSelected((selected) => !selected)}
+      />
+      {systemSelected && <SystemNodePanel onClose={() => setSystemSelected(false)} />}
+    </>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ProceduralAvatar from '@/components/ProceduralAvatar';
 import NeuralCanvas from '@/components/neural/NeuralCanvas';
+import SystemNodePanel from '@/components/neural/SystemNodePanel';
 import { profileHref } from '@/lib/profile-route.mjs';
 import {
   parseNeuralSearchResults,
@@ -26,6 +27,7 @@ export default function NeuralExplorer() {
   const [connections, setConnections] = useState<NeuralConnection[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<PublicNeuralProfile | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [systemSelected, setSystemSelected] = useState(false);
   const [cameraMode, setCameraMode] = useState<CameraMode>('orbit');
   const [cameraEpoch, setCameraEpoch] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -72,6 +74,7 @@ export default function NeuralExplorer() {
   }, [refreshCount]);
 
   const loadPlayer = useCallback(async (username: string) => {
+    setSystemSelected(false);
     const requestId = ++requestRef.current;
     setSearchError('');
     try {
@@ -225,6 +228,7 @@ export default function NeuralExplorer() {
     requestRef.current += 1;
     setSelectedProfile(null);
     setSelectedId(null);
+    setSystemSelected(false);
     setSearchResults([]);
     setSearchError('');
     setNodes(baseNodes);
@@ -241,6 +245,7 @@ export default function NeuralExplorer() {
     setConnections([]);
     setSelectedProfile(null);
     setSelectedId(null);
+    setSystemSelected(false);
     setSearchResults([]);
     setSearchError('');
     setPageOffset(300);
@@ -249,6 +254,7 @@ export default function NeuralExplorer() {
   }
 
   function selectNode(node: NeuralSearchResult) {
+    setSystemSelected(false);
     void loadPlayer(node.username);
   }
 
@@ -267,6 +273,11 @@ export default function NeuralExplorer() {
         maxStrength={snapshot?.maxStrength ?? 20}
         cameraMode={cameraMode}
         onSelect={selectNode}
+        onSystemSelect={() => {
+          setSelectedProfile(null);
+          setSelectedId(null);
+          setSystemSelected((selected) => !selected);
+        }}
       />
       <div className="networkExplorerShade" aria-hidden="true" />
       <section className="networkControls" aria-label="Network controls">
@@ -417,6 +428,7 @@ export default function NeuralExplorer() {
           )}
         </aside>
       )}
+      {systemSelected && <SystemNodePanel onClose={() => setSystemSelected(false)} />}
     </main>
   );
 }

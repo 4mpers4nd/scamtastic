@@ -2,10 +2,44 @@
 
 import { revalidatePath } from 'next/cache';
 import { getUserOrNull } from '@/lib/auth-state.mjs';
+import { invitationCodeHash } from '@/lib/invitation-code.mjs';
 import { supabaseServer } from '@/lib/server';
 import { sendActivationEmail } from '@/lib/activation';
 
 export type ActionResult = { message: string; error: boolean } | null;
+
+export async function claimAdministratorInvitation(
+  _previous: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const code = textField(formData, 'invitationCode', 64);
+  const username = textField(formData, 'username', 24);
+  const displayName = textField(formData, 'displayName', 80);
+  const hash = code ? invitationCodeHash(code) : null;
+  if (!hash || !username || !/^[A-Za-z0-9_&-]{3,24}$/.test(username) || displayName === null) {
+    return { message: 'Check your username and display name.', error: true };
+  }
+  const db = await supabaseServer();
+  const user = await getUserOrNull(db.auth);
+  if (!user) return { message: 'Sign in through the administrator invitation email first.', error: true };
+  const { error } = await db.rpc('claim_administrator_invitation', {
+    p_code_hash: hash,
+    p_username: username,
+    p_display_name: displayName || null,
+  });
+  if (error) {
+    if (error.message.includes('Username unavailable')) {
+      return { message: 'That username is unavailable. Choose another username.', error: true };
+    }
+    console.error('Administrator invitation claim failed:', error.code ?? 'unknown');
+    return {
+      message: 'Unable to claim this invitation. It may be expired, revoked, or bound to another email.',
+      error: true,
+    };
+  }
+  revalidatePath('/game');
+  return { message: 'Account profile created. Set your password to complete activation.', error: false };
+}
 
 function textField(formData: FormData, name: string, max: number) {
   const value = formData.get(name);

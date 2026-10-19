@@ -64,6 +64,7 @@ export default function HeaderAccount({
         {username && <Link href={profileLink}>My Profile</Link>}
         <Link href="/game">Game Dashboard</Link>
         <Link href="/settings">Account Settings</Link>
+        {username && <Link href="/settings/invitations">Invitation Credits</Link>}
         {isAdmin && <Link href="/admin">Administration</Link>}
         <button type="button" onClick={signOut} disabled={busy}>
           {busy ? 'Signing out…' : 'Sign Out'}

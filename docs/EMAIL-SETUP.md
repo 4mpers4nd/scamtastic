@@ -35,6 +35,8 @@ Missing email variables produce a server-side diagnostic naming the missing vari
 
 The administrator test-email action is same-origin and administrator-only. It uses only the authenticated administrator's verified email and has no recipient input. It permits one request per administrator per five minutes per running application instance. This in-process limit is best-effort on horizontally scaled/serverless deployments; keep the Vercel deployment rate limiting/firewall enabled for `/api/admin/test-email` where available. Resend also applies its account limits.
 
+The v0.4 administrator composer is available at `/admin/email`. It requires a verified administrator session, allows no more than ten recipients per message, and permits up to five sends per administrator per hour using a database-backed reservation. Templates are sanitized before storage and sending. Delivery history stores the subject, recipient count, status, and timestamp, but not recipient addresses or message bodies. Administrator invitations at `/admin/invitations` are also server-authorized and sent through the same Resend configuration.
+
 ## Supabase Auth SMTP
 
 The application itself sends approval and test messages using the Resend API. Configure Supabase Auth SMTP as well for other Supabase-managed messages (such as password resets and confirmations):

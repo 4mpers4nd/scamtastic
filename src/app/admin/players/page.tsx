@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { supabaseServer } from '@/lib/server';
 import { PlayerAccessForm, PlayerEditForm } from '@/components/AdminActionForms';
+import AdminPlayerInvitationCredits from '@/components/AdminPlayerInvitationCredits';
 import { profileHref } from '@/lib/profile-route.mjs';
 
 type Player = {
@@ -13,6 +14,7 @@ type Player = {
   is_admin: boolean;
   created_at: string;
   referral_count: number;
+  invitation_credits?: number;
 };
 
 export default async function AdminPlayers({
@@ -24,9 +26,22 @@ export default async function AdminPlayers({
   const requestedQuery = Array.isArray(params.q) ? params.q[0] : params.q;
   const query = (requestedQuery ?? '').trim().slice(0, 100);
   const db = await supabaseServer();
-  const { data, error } = await db.rpc('admin_list_players', { p_search: query });
+  const [{ data, error }, { data: creditData, error: creditError }] = await Promise.all([
+    db.rpc('admin_list_players', { p_search: query }),
+    db.rpc('admin_list_invitation_players', { p_search: query }),
+  ]);
   if (error) throw error;
-  const players = data as Player[];
+  if (creditError) throw creditError;
+  const creditBalances = new Map(
+    ((creditData ?? []) as Array<{ id: string; credits: number }>).map((player) => [
+      player.id,
+      player.credits,
+    ]),
+  );
+  const players = (data as Player[]).map((player) => ({
+    ...player,
+    invitation_credits: creditBalances.get(player.id) ?? 0,
+  }));
 
   return (
     <>
@@ -67,7 +82,9 @@ export default async function AdminPlayers({
                 <dl className="detailList">
                   <div><dt>Registered</dt><dd><time dateTime={player.created_at}>{new Date(player.created_at).toLocaleDateString()}</time></dd></div>
                   <div><dt>Referral count</dt><dd>{player.referral_count}</dd></div>
+                  <div><dt>Invitation credits</dt><dd>{player.invitation_credits}</dd></div>
                 </dl>
+                <AdminPlayerInvitationCredits playerId={player.id} username={player.username} />
                 <PlayerEditForm id={player.id} displayName={player.display_name} bio={player.bio} />
                 <PlayerAccessForm id={player.id} suspended={player.is_banned} />
               </div>

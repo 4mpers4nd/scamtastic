@@ -19,6 +19,13 @@
 - Interactive Three.js homepage, `/network` viewer, and responsive profile-network scenes
 - Gameplay features must explicitly emit eligible interactions before relationships appear
 
+## v0.4.0 — Invitation system and network identity
+- Credit-backed player invitations remain subject to administrator application review; verified administrators can issue expiring, email-bound direct authorizations
+- Player credit requests, admin invitation/credit management, secure invitation landing and account activation
+- Bounded administrator email composer with sanitized templates, server-side delivery, and minimal history metadata
+- Render-only Scamtastic system neuron, centralized rendering palette, and invitation-origin neural relationships
+- Requires reviewing and applying `supabase/migrations/20261019020000_v040_invitations.sql` to development before deploying the application
+
 ## v0.2 — Social economy
 - Fixed supply of SCAMCOINS, atomic double-entry ledger, treasury
 - Player-created opportunities and contracts, escrow, disputes

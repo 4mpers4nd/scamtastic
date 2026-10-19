@@ -3,6 +3,7 @@ import { supabaseServer } from '@/lib/server';
 
 function safeDestination(value: string | null) {
   if (value === '/game' || value === '/settings' || value === '/activate') return value;
+  if (value && /^\/invite\/[a-f0-9]{64}$/.test(value)) return value;
   return '/game';
 }
 
@@ -25,11 +26,12 @@ export async function GET(request: NextRequest) {
         });
         if (verifyError) throw verifyError;
       }
-      const { error: claimError } = await db.rpc('claim_approved_application');
-      if (claimError) throw claimError;
-      return NextResponse.redirect(
-        new URL(safeDestination(url.searchParams.get('next')), url.origin),
-      );
+      const destination = safeDestination(url.searchParams.get('next'));
+      if (!destination.startsWith('/invite/')) {
+        const { error: claimError } = await db.rpc('claim_approved_application');
+        if (claimError) throw claimError;
+      }
+      return NextResponse.redirect(new URL(destination, url.origin));
     } catch (error) {
       const code =
         typeof error === 'object' &&

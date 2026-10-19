@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { avatarSvgDataUri } from '@/lib/avatar';
 import { connectionRadius, initialNeuralView } from '@/lib/neural/geometry.mjs';
 import { createFrameLoop } from '@/lib/neural/frame-loop.mjs';
+import { NEURAL_RENDERING, SYSTEM_NODE } from '@/lib/neural/rendering.mjs';
 import type { NeuralConnection, NeuralSearchResult } from '@/lib/neural/types';
 
 type CameraMode = 'orbit' | 'flight';
@@ -19,6 +20,7 @@ type Props = {
   cameraMode?: CameraMode;
   autoRotate?: boolean;
   onSelect?: (node: NeuralSearchResult) => void;
+  onSystemSelect?: () => void;
   className?: string;
   label?: string;
 };
@@ -33,13 +35,16 @@ export default function NeuralCanvas({
   cameraMode = 'orbit',
   autoRotate = false,
   onSelect,
+  onSystemSelect,
   className,
   label = 'Interactive three-dimensional player neural network',
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const selectRef = useRef(onSelect);
+  const systemSelectRef = useRef(onSystemSelect);
   const [rendererError, setRendererError] = useState(false);
   selectRef.current = onSelect;
+  systemSelectRef.current = onSystemSelect;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -62,7 +67,7 @@ export default function NeuralCanvas({
 
     setRendererError(false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-    renderer.setClearColor(0x05070a, 0);
+    renderer.setClearColor(NEURAL_RENDERING.background, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const scene = new THREE.Scene();
@@ -75,7 +80,12 @@ export default function NeuralCanvas({
         Number.isFinite(node.x) && Number.isFinite(node.y) && Number.isFinite(node.z),
     );
     const nodeIndex = new Map(visibleNodes.map((node, index) => [node.id, index]));
-    const initialView = initialNeuralView(visibleNodes, focusId);
+    const initialView = initialNeuralView(
+      focusId
+        ? visibleNodes
+        : [...visibleNodes, { id: SYSTEM_NODE.id, x: SYSTEM_NODE.x, y: SYSTEM_NODE.y, z: SYSTEM_NODE.z }],
+      focusId,
+    );
     const target = new THREE.Vector3(
       initialView.target.x,
       initialView.target.y,
@@ -119,12 +129,75 @@ export default function NeuralCanvas({
       nodeTransform.scale.setScalar(1);
       nodeTransform.updateMatrix();
       nodeMesh.setMatrixAt(index, nodeTransform.matrix);
-      nodeMesh.setColorAt(index, new THREE.Color(0xffffff));
+      nodeMesh.setColorAt(index, new THREE.Color(NEURAL_RENDERING.playerCore));
     });
     nodeMesh.instanceMatrix.needsUpdate = true;
     if (nodeMesh.instanceColor) nodeMesh.instanceColor.needsUpdate = true;
     nodeMesh.computeBoundingSphere();
     scene.add(nodeMesh);
+
+    const systemCore = new THREE.Mesh(
+      new THREE.SphereGeometry(NEURAL_RENDERING.systemRadius, 24, 18),
+      new THREE.MeshBasicMaterial({ color: NEURAL_RENDERING.systemCore }),
+    );
+    systemCore.position.set(SYSTEM_NODE.x, SYSTEM_NODE.y, SYSTEM_NODE.z);
+    scene.add(systemCore);
+
+    const systemHalo = new THREE.Mesh(
+      new THREE.SphereGeometry(NEURAL_RENDERING.systemHaloRadius, 20, 14),
+      new THREE.MeshBasicMaterial({
+        color: NEURAL_RENDERING.systemCyan,
+        transparent: true,
+        opacity: 0.055,
+        depthWrite: false,
+      }),
+    );
+    scene.add(systemHalo);
+
+    const cyanRing = new THREE.Mesh(
+      new THREE.TorusGeometry(2.45, 0.055, 8, 48),
+      new THREE.MeshBasicMaterial({
+        color: NEURAL_RENDERING.systemCyan,
+        transparent: true,
+        opacity: 0.9,
+      }),
+    );
+    const magentaRing = new THREE.Mesh(
+      new THREE.TorusGeometry(2.72, 0.035, 8, 48),
+      new THREE.MeshBasicMaterial({
+        color: NEURAL_RENDERING.systemMagenta,
+        transparent: true,
+        opacity: 0.65,
+      }),
+    );
+    cyanRing.rotation.set(0.5, 0.25, 0.1);
+    magentaRing.rotation.set(-0.35, 0.7, 0.3);
+    scene.add(cyanRing, magentaRing);
+
+    const logoCanvas = document.createElement('canvas');
+    logoCanvas.width = 128;
+    logoCanvas.height = 128;
+    const logoContext = logoCanvas.getContext('2d');
+    if (logoContext) {
+      logoContext.fillStyle = '#ffffff';
+      logoContext.font = '700 108px Arial, sans-serif';
+      logoContext.textAlign = 'center';
+      logoContext.textBaseline = 'middle';
+      logoContext.fillText('S', 64, 67);
+    }
+    const logoTexture = new THREE.CanvasTexture(logoCanvas);
+    logoTexture.colorSpace = THREE.SRGBColorSpace;
+    const systemLogo = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.15, 1.15),
+      new THREE.MeshBasicMaterial({
+        map: logoTexture,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      }),
+    );
+    systemLogo.renderOrder = 4;
+    scene.add(systemLogo);
 
     const avatarPlayerId = centralAvatar?.nodeId;
     const avatarNode = visibleNodes.find((node) => node.id === avatarPlayerId);
@@ -152,7 +225,7 @@ export default function NeuralCanvas({
 
       const ringGeometry = new THREE.TorusGeometry(1.38, 0.055, 8, 36);
       const ringMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
+        color: NEURAL_RENDERING.playerGlow,
         transparent: true,
         opacity: 0.92,
       });
@@ -180,7 +253,7 @@ export default function NeuralCanvas({
       nodeTransform.scale.setScalar(2.1);
       nodeTransform.updateMatrix();
       glowMesh.setMatrixAt(index, nodeTransform.matrix);
-      glowMesh.setColorAt(index, new THREE.Color(0xffffff));
+      glowMesh.setColorAt(index, new THREE.Color(NEURAL_RENDERING.playerGlow));
     });
     glowMesh.instanceMatrix.needsUpdate = true;
     if (glowMesh.instanceColor) glowMesh.instanceColor.needsUpdate = true;
@@ -235,6 +308,7 @@ export default function NeuralCanvas({
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
     const worldDirection = new THREE.Vector3();
+    const systemProjection = new THREE.Vector3(SYSTEM_NODE.x, SYSTEM_NODE.y, SYSTEM_NODE.z);
 
     function updateCamera() {
       if (cameraMode === 'orbit') {
@@ -266,14 +340,16 @@ export default function NeuralCanvas({
       visibleNodes.forEach((node, index) => {
         const color =
           !selectedId || node.id === selectedId
-            ? new THREE.Color(0xffffff)
+            ? new THREE.Color(NEURAL_RENDERING.playerCore)
             : linkedIds.has(node.id)
-              ? new THREE.Color(0xcbd4dc)
-              : new THREE.Color(0x39434d);
+              ? new THREE.Color(NEURAL_RENDERING.playerGlow)
+              : new THREE.Color(0x52616f);
         nodeMesh.setColorAt(index, color);
         glowMesh.setColorAt(
           index,
-          node.id === selectedId ? new THREE.Color(0xffffff) : new THREE.Color(0x82909d),
+          node.id === selectedId
+            ? new THREE.Color(NEURAL_RENDERING.selectedNeuron)
+            : new THREE.Color(NEURAL_RENDERING.playerGlow),
         );
       });
       validConnections.forEach((connection, index) => {
@@ -282,11 +358,9 @@ export default function NeuralCanvas({
           (connection.playerA === selectedId || connection.playerB === selectedId);
         linkMesh.setColorAt(
           index,
-          selectedId && connected
-            ? new THREE.Color(0xffffff)
-            : selectedId
-              ? new THREE.Color(0x48525d)
-              : new THREE.Color(0xd9e0e6),
+          connected
+            ? new THREE.Color(NEURAL_RENDERING.activeConnection)
+            : new THREE.Color(NEURAL_RENDERING.inactiveConnection),
         );
       });
       if (nodeMesh.instanceColor) nodeMesh.instanceColor.needsUpdate = true;
@@ -334,15 +408,33 @@ export default function NeuralCanvas({
         if (movingInFlight) needsRender = true;
       }
       updateCamera();
+      camera.updateMatrixWorld();
+      systemProjection.set(SYSTEM_NODE.x, SYSTEM_NODE.y, SYSTEM_NODE.z);
+      systemProjection.project(camera);
+      const systemVisible =
+        systemProjection.z >= -1 &&
+        systemProjection.z <= 1 &&
+        Math.abs(systemProjection.x) <= 1.2 &&
+        Math.abs(systemProjection.y) <= 1.2;
       if (avatarMesh) {
         avatarMesh.quaternion.copy(camera.quaternion);
         avatarRing?.quaternion.copy(camera.quaternion);
+      }
+      systemLogo.quaternion.copy(camera.quaternion);
+      systemLogo.position.copy(camera.position).normalize().multiplyScalar(2.02);
+      const animateSystem =
+        systemVisible &&
+        !reducedMotion.matches &&
+        document.visibilityState === 'visible';
+      if (animateSystem) {
+        const pulse = 1 + Math.sin(time * 0.0015) * 0.025;
+        systemHalo.scale.setScalar(pulse);
       }
       if (needsRender) {
         renderer.render(scene, camera);
         needsRender = false;
       }
-      return shouldRotate || movingInFlight;
+      return shouldRotate || movingInFlight || animateSystem;
     };
     frameLoop = createFrameLoop(
       frameScene,
@@ -428,12 +520,23 @@ export default function NeuralCanvas({
         pointerPosition(event);
         raycaster.setFromCamera(pointer, camera);
         const hit = raycaster
-          .intersectObjects(avatarMesh ? [nodeMesh, avatarMesh] : [nodeMesh], false)
+          .intersectObjects(
+            avatarMesh
+              ? [systemCore, nodeMesh, avatarMesh]
+              : [systemCore, nodeMesh],
+            false,
+          )
           .find(
             (intersection) =>
               intersection.object === avatarMesh ||
+              intersection.object === systemCore ||
               (intersection.object === nodeMesh && intersection.instanceId !== undefined),
           );
+        if (hit?.object === systemCore) {
+          systemSelectRef.current?.();
+          requestRender();
+          return;
+        }
         const nodeIndexHit =
           hit?.object === avatarMesh
             ? visibleNodes.findIndex((node) => node.id === avatarPlayerId)

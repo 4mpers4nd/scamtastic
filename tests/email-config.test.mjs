@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import test from 'node:test';
 import {
+  administratorInvitationCallbackUrl,
   activationCallbackUrl,
   emailSenderConfig,
   emailSiteUrl,
@@ -22,6 +23,20 @@ test('approval callback uses the configured preview deployment origin', () => {
     'https://scamtastic-git-development-team.vercel.app/auth/callback?token_hash=one-time-token&type=invite&next=%2Factivate',
   );
   assert.notEqual(new URL(callback).hostname, 'scamtastic.online');
+});
+
+test('administrator invitation callbacks preserve a validated one-time code on the configured host', () => {
+  const callback = administratorInvitationCallbackUrl(
+    'https://preview.scamtastic.test',
+    'activation-hash',
+    'invite',
+    'a'.repeat(64),
+  );
+  assert.equal(callback.origin, 'https://preview.scamtastic.test');
+  assert.equal(callback.searchParams.get('next'), `/invite/${'a'.repeat(64)}`);
+  assert.throws(() =>
+    administratorInvitationCallbackUrl('https://preview.scamtastic.test', 'hash', 'invite', '../production'),
+  );
 });
 
 test('preview and development email links cannot point at production', () => {

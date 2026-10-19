@@ -73,6 +73,20 @@ export function activationCallbackUrl(siteUrl, tokenHash, verificationType) {
   return callback;
 }
 
+export function administratorInvitationCallbackUrl(
+  siteUrl,
+  tokenHash,
+  verificationType,
+  invitationCode,
+) {
+  if (!/^[a-f0-9]{64}$/.test(invitationCode)) {
+    throw new Error('Administrator invitation code is invalid.');
+  }
+  const callback = activationCallbackUrl(siteUrl, tokenHash, verificationType);
+  callback.searchParams.set('next', `/invite/${invitationCode}`);
+  return callback;
+}
+
 export function emailSenderConfig({
   siteUrl,
   resendApiKey,
