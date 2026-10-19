@@ -471,9 +471,22 @@ begin
     raise;
   end;
 
-  if v_referral.id is not null then
-    insert into public.referrals(application_id, referral_code_id)
-      values (v_application_id, v_referral.id);
+    if v_referral.id is not null then
+    insert into public.referrals (
+      application_id,
+      referral_code_id,
+      referrer_id,
+      referred_id
+    )
+    values (
+      v_application_id,
+      v_referral.id,
+      coalesce(
+        v_referral.creator_id,
+        nullif(to_jsonb(v_referral)->>'owner_id', '')::uuid
+      ),
+      null
+    );
   end if;
   return 'received';
 end
