@@ -3,6 +3,7 @@ import 'server-only';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { getUserOrNull } from '@/lib/auth-state.mjs';
 
 export async function supabaseServer() {
   const store = await cookies();
@@ -44,9 +45,8 @@ export function supabaseService() {
 
 export async function authenticatedUser() {
   const db = await supabaseServer();
-  const { data, error } = await db.auth.getUser();
-  if (error) throw error;
-  return { db, user: data.user };
+  const user = await getUserOrNull(db.auth);
+  return { db, user };
 }
 
 export async function administratorUser() {

@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { getUserOrNull } from '@/lib/auth-state.mjs';
 import { supabaseServer } from '@/lib/server';
 import { sendActivationEmail } from '@/lib/activation';
 
@@ -13,13 +14,12 @@ function textField(formData: FormData, name: string, max: number) {
 
 async function requireAdminDb() {
   const db = await supabaseServer();
-  const { data: userData, error: userError } = await db.auth.getUser();
-  if (userError) throw userError;
-  if (!userData.user) return { db: null, user: null };
+  const user = await getUserOrNull(db.auth);
+  if (!user) return { db: null, user: null };
   const { data, error } = await db.rpc('is_scamtastic_admin');
   if (error) throw error;
   return data === true
-    ? { db, user: userData.user }
+    ? { db, user }
     : { db: null, user: null };
 }
 
@@ -242,16 +242,15 @@ export async function updateOwnProfile(
 
   try {
     const db = await supabaseServer();
-    const { data: userData, error: userError } = await db.auth.getUser();
-    if (userError) throw userError;
-    if (!userData.user) return { message: 'Sign in to update account settings.', error: true };
+    const user = await getUserOrNull(db.auth);
+    if (!user) return { message: 'Sign in to update account settings.', error: true };
     const { error } = await db
       .from('profiles')
       .update({
         display_name: displayName || null,
         bio,
       })
-      .eq('id', userData.user.id);
+      .eq('id', user.id);
     if (error) throw error;
     revalidatePath('/settings');
     revalidatePath('/profile/[username]', 'page');
@@ -272,9 +271,8 @@ export async function createOwnReferral(
   }
   try {
     const db = await supabaseServer();
-    const { data: userData, error: userError } = await db.auth.getUser();
-    if (userError) throw userError;
-    if (!userData.user) return { message: 'Sign in to create a referral code.', error: true };
+    const user = await getUserOrNull(db.auth);
+    if (!user) return { message: 'Sign in to create a referral code.', error: true };
     const { error } = await db.rpc('create_referral_code', { p_usage_limit: limit });
     if (error) throw error;
     revalidatePath('/settings');
@@ -300,9 +298,8 @@ export async function revokeOwnReferral(
   }
   try {
     const db = await supabaseServer();
-    const { data: userData, error: userError } = await db.auth.getUser();
-    if (userError) throw userError;
-    if (!userData.user) return { message: 'Sign in to revoke a referral code.', error: true };
+    const user = await getUserOrNull(db.auth);
+    if (!user) return { message: 'Sign in to revoke a referral code.', error: true };
     const { error } = await db.rpc('revoke_own_referral_code', { p_code_id: id });
     if (error) throw error;
     revalidatePath('/settings');

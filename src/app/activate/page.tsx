@@ -1,19 +1,19 @@
 import { redirect } from 'next/navigation';
 import ActivationForm from '@/components/ActivationForm';
 import Header from '@/components/Header';
-import { supabaseServer } from '@/lib/server';
+import { getAccessDecision } from '@/lib/auth-state.mjs';
+import { authenticatedUser } from '@/lib/server';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Activate() {
-  const db = await supabaseServer();
-  const { data, error } = await db.auth.getUser();
-  if (error) throw error;
-  if (!data.user) redirect('/login?error=callback');
+  const { db, user } = await authenticatedUser();
+  if (getAccessDecision(user) === 'login') redirect('/login?error=callback');
+  const player = user ?? redirect('/login?error=callback');
   const { data: profile, error: profileError } = await db
     .from('profiles')
     .select('id')
-    .eq('id', data.user.id)
+    .eq('id', player.id)
     .maybeSingle();
   if (profileError) throw profileError;
   if (!profile) {

@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { getUserOrNull } from '@/lib/auth-state.mjs';
 
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -27,8 +28,7 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const { error } = await supabase.auth.getUser();
-  if (error) throw error;
+  await getUserOrNull(supabase.auth);
   return response;
 }
 

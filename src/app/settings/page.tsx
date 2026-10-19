@@ -3,7 +3,8 @@ import { OwnProfileForm, OwnReferralForm, OwnReferralRevokeForm } from '@/compon
 import AvatarReroll from '@/components/AvatarReroll';
 import CopyReferralLink from '@/components/CopyReferralLink';
 import Header from '@/components/Header';
-import { supabaseServer } from '@/lib/server';
+import { getAccessDecision } from '@/lib/auth-state.mjs';
+import { authenticatedUser } from '@/lib/server';
 
 type ReferralCode = {
   id: string;
@@ -17,15 +18,14 @@ type ReferralCode = {
 export const dynamic = 'force-dynamic';
 
 export default async function Settings() {
-  const db = await supabaseServer();
-  const { data: auth, error: authError } = await db.auth.getUser();
-  if (authError) throw authError;
-  if (!auth.user) redirect('/login');
+  const { db, user } = await authenticatedUser();
+  if (getAccessDecision(user) === 'login') redirect('/login');
+  const player = user ?? redirect('/login');
 
   const { data: profile, error: profileError } = await db
     .from('profiles')
     .select('username,display_name,bio,avatar_seed,avatar_generator_version,is_banned')
-    .eq('id', auth.user.id)
+    .eq('id', player.id)
     .maybeSingle();
   if (profileError) throw profileError;
 
@@ -46,7 +46,7 @@ export default async function Settings() {
             <div className="tag">// ACCOUNT SETTINGS</div>
             <h1>Keep your profile current.</h1>
             <p className="muted">
-              Signed in as {profile?.username ?? auth.user.email}. Your username and
+              Signed in as {profile?.username ?? player.email}. Your username and
               account credentials are managed separately.
             </p>
             {profile ? (

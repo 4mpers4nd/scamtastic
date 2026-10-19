@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { getUserOrNull } from '@/lib/auth-state.mjs';
 import { supabaseServer } from '@/lib/server';
 
 export async function POST(request: NextRequest) {
@@ -9,9 +10,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const db = await supabaseServer();
-    const { data: auth, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    if (!auth.user) {
+    const user = await getUserOrNull(db.auth);
+    if (!user) {
       return NextResponse.json({ error: 'Sign in to reroll your avatar.' }, { status: 401 });
     }
 
