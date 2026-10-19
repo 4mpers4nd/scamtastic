@@ -4,17 +4,57 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { profileHref } from '@/lib/profile-route.mjs';
-import type { PublicFollowData, PublicFollowMember } from '@/lib/profile-follows.mjs';
+import { parsePublicFollowPage, type PublicFollowData, type PublicFollowMember } from '@/lib/profile-follows.mjs';
 
 function FollowList({
+  username,
+  direction,
   label,
   count,
-  members,
+  initialMembers,
 }: {
+  username: string;
+  direction: 'followers' | 'following';
   label: string;
   count: number;
-  members: PublicFollowMember[];
+  initialMembers: PublicFollowMember[];
 }) {
+  const [members, setMembers] = useState(initialMembers);
+  const [total, setTotal] = useState(count);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function loadMore() {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch(
+        `/api/profile/${encodeURIComponent(username)}/follows?direction=${direction}&offset=${members.length}`,
+      );
+      const result: unknown = await response.json();
+      if (!response.ok) {
+        const message =
+          typeof result === 'object' &&
+          result !== null &&
+          'error' in result &&
+          typeof result.error === 'string'
+            ? result.error
+            : 'Unable to load this follow list right now.';
+        throw new Error(message);
+      }
+      const page = parsePublicFollowPage(result);
+      if (!page || page.offset !== members.length) {
+        throw new Error('The follow list returned an invalid page.');
+      }
+      setMembers((current) => [...current, ...page.members]);
+      setTotal(page.count);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : 'Unable to load this follow list right now.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <details className="profileFollowList">
       <summary>{count} {label}</summary>
@@ -31,9 +71,12 @@ function FollowList({
       ) : (
         <p className="muted">No {label.toLowerCase()} to show.</p>
       )}
-      {count > members.length && (
-        <p className="muted">Showing the {members.length} most recent of {count}.</p>
+      {members.length < total && (
+        <button className="button secondary followListMore" type="button" disabled={loading} onClick={loadMore}>
+          {loading ? 'Loading…' : `Load more (${members.length} of ${total})`}
+        </button>
       )}
+      {error && <p className="error" role="alert">{error}</p>}
     </details>
   );
 }
@@ -88,14 +131,18 @@ export default function ProfileFollowControls({
     <section className="profileFollowPanel" aria-label="Follow network">
       <div className="profileFollowLists">
         <FollowList
+          username={username}
+          direction="followers"
           label="Followers"
           count={followersCount}
-          members={initialData.followers}
+          initialMembers={initialData.followers}
         />
         <FollowList
+          username={username}
+          direction="following"
           label="Following"
           count={initialData.followingCount}
-          members={initialData.following}
+          initialMembers={initialData.following}
         />
       </div>
       {!isOwner && viewerIsAuthenticated && (

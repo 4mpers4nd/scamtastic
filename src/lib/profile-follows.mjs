@@ -37,3 +37,24 @@ export function parsePublicFollowData(value) {
     following: value.following.map(({ username, displayName }) => ({ username, displayName })),
   };
 }
+
+export function parsePublicFollowPage(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  if (
+    !Number.isSafeInteger(value.count) ||
+    value.count < 0 ||
+    !Number.isSafeInteger(value.offset) ||
+    value.offset < 0 ||
+    !Array.isArray(value.members) ||
+    value.members.length > 20 ||
+    !value.members.every(isFollowMember)
+  ) {
+    return null;
+  }
+
+  return {
+    count: value.count,
+    offset: value.offset,
+    members: value.members.map(({ username, displayName }) => ({ username, displayName })),
+  };
+}

@@ -30,12 +30,12 @@ export default async function AdminPlayerDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)) notFound();
 
   const db = await supabaseServer();
-  const { data, error } = await db.rpc('admin_list_players', { p_search: '' });
+  const { data, error } = await db.rpc('admin_get_player', { p_player_id: id });
   if (error) throw error;
-  const player = ((data ?? []) as Player[]).find((candidate) => candidate.id === id);
+  const player = data as Player | null;
   if (!player) notFound();
 
   let invitationSummary: InvitationSummary | undefined;

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePublicFollowData } from '../src/lib/profile-follows.mjs';
+import { parsePublicFollowData, parsePublicFollowPage } from '../src/lib/profile-follows.mjs';
 
 test('public follow data accepts usernames with ampersands and returns only public fields', () => {
   const parsed = parsePublicFollowData({
@@ -19,6 +19,29 @@ test('public follow data accepts usernames with ampersands and returns only publ
     followers: [{ username: 'Ampers&', displayName: 'Ampers' }],
     following: [],
   });
+});
+
+test('follow-list pagination keeps ampersand usernames public and bounded', () => {
+  assert.deepEqual(
+    parsePublicFollowPage({
+      count: 21,
+      offset: 20,
+      members: [{ username: 'Ampers&', displayName: 'Ampers', email: 'private@example.com' }],
+    }),
+    {
+      count: 21,
+      offset: 20,
+      members: [{ username: 'Ampers&', displayName: 'Ampers' }],
+    },
+  );
+  assert.equal(
+    parsePublicFollowPage({
+      count: 42,
+      offset: 20,
+      members: Array(21).fill({ username: 'Player_1', displayName: null }),
+    }),
+    null,
+  );
 });
 
 test('public follow data rejects malformed counts, usernames, and member lists', () => {
