@@ -9,3 +9,83 @@
 .profileEdit{display:flex;width:max-content;margin:0 auto 8px}
 .profileNotFound h1{font-size:clamp(28px,5vw,38px);letter-spacing:-.05em;margin:16px 0}
 .profileNotFound .profileBio{margin:18px 0 24px}
+.hero{background:#05070a}.hero:after{background:linear-gradient(90deg,#05070a 0%,#05070ae8 28%,#05070a77 57%,transparent 100%)}
+.networkHeroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.neuralCanvasShell{position:relative;min-width:0;min-height:0}
+.neuralCanvas{display:block;width:100%;height:100%;outline:none;touch-action:none}
+.neuralCanvas:focus-visible{outline:1px solid #fff;outline-offset:-4px}
+.neuralCanvasMessage{position:absolute;inset:auto 15px 15px;pointer-events:none;color:#bec7d0;font-size:12px;text-align:center;text-shadow:0 2px 8px #000}
+.networkLoading{position:absolute;inset:0;background:radial-gradient(ellipse at 70% 45%,#15191e 0%,#05070a 66%)}
+.networkUnavailable{position:absolute;z-index:1;right:6%;bottom:24px;max-width:300px;color:#b8c1ca;font-size:12px}
+.networkExplorer{position:relative;min-height:calc(100svh - 76px);overflow:hidden;background:#05070a}
+.networkExplorerCanvas{position:absolute;inset:0}
+.networkExplorerShade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#05070ac9 0%,#05070a55 38%,#05070a12 100%);z-index:1}
+.networkControls,.neuralPlayerPanel{position:absolute;z-index:2;top:22px;max-height:calc(100svh - 120px);overflow:auto;padding:23px;background:#0b0f14d9;border:1px solid #ffffff1b;border-radius:10px;backdrop-filter:blur(10px);box-shadow:0 18px 60px #0008}
+.networkControls{left:clamp(16px,3.5vw,52px);width:min(390px,calc(100vw - 32px))}
+.networkControls h1{font-size:clamp(27px,3vw,37px);line-height:1.08;letter-spacing:-.06em;margin:14px 0 10px}
+.networkControls>p{color:#aab4bf;font-size:13px;line-height:1.6;margin:8px 0}
+.networkControls .neuralLoadNote{color:#d0d6dc;font-size:11px}
+.neuralSearch{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:18px 0 10px}
+.neuralSearch input{min-width:0;width:100%;padding:11px 12px;border:1px solid #48525d;border-radius:6px;background:#080b0f;color:#f4f6f8;outline:none}
+.neuralSearch input:focus{border-color:#fff}
+.neuralSearch .button,.neuralToolbar .button{padding:10px 13px}
+.neuralSearchResults,.neuralConnectionList{list-style:none;padding:0;margin:0}
+.neuralSearchResults{max-height:180px;overflow:auto;border-top:1px solid #ffffff18}
+.neuralSearchResults button{width:100%;display:flex;justify-content:space-between;gap:12px;padding:10px 4px;border:0;border-bottom:1px solid #ffffff12;background:none;color:#eff2f5;text-align:left;cursor:pointer}
+.neuralSearchResults button span+span{color:#9ba6b0;font-size:12px}
+.neuralSearchResults button:hover{color:#fff;background:#ffffff0b}
+.neuralSearchError{color:#ffc3c3!important}
+.neuralToolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+.neuralLoadMore{padding:9px 12px;margin:4px 0}
+.neuralControlsHint{font-size:11px!important;color:#8e9aa6!important;margin-top:14px!important}
+.neuralPlayerPanel{right:clamp(16px,3.5vw,52px);width:min(340px,calc(100vw - 32px));padding:21px}
+.neuralPanelClose{position:absolute;right:13px;top:9px;border:0;background:none;color:#c7cfd6;font-size:28px;cursor:pointer}
+.neuralPanelAvatar{display:block;width:62px;height:62px;margin:16px 0 10px;border-radius:50%;border:1px solid #fff}
+.neuralPlayerPanel h2{margin:7px 0 2px;font-size:22px}
+.neuralPlayerPanel .profileUsername{margin:4px 0}
+.neuralPlayerStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:13px 0;border-block:1px solid #ffffff18;margin:13px 0}
+.neuralPlayerStats div{display:grid;gap:5px}
+.neuralPlayerStats dt{color:#94a0ab;font-size:10px}
+.neuralPlayerStats dd{margin:0;color:#f4f6f8;font-size:15px;font-weight:750}
+.neuralProfileLink{padding:10px 13px}
+.neuralPlayerPanel h3{margin:21px 0 8px;font-size:13px}
+.neuralConnectionList{display:grid;max-height:270px;overflow:auto}
+.neuralConnectionList li{border-top:1px solid #ffffff14}
+.neuralConnectionList button{width:100%;display:flex;align-items:center;gap:10px;padding:10px 2px;border:0;background:none;color:#f1f4f6;text-align:left;cursor:pointer}
+.neuralConnectionList button:hover{background:#ffffff0a}
+.neuralConnectionAvatar{width:34px;height:34px;flex:none;border-radius:50%;border:1px solid #fff}
+.neuralConnectionIdentity{min-width:0;display:grid;gap:4px}
+.neuralConnectionIdentity strong{font-size:12px}
+.neuralConnectionIdentity small{color:#a1abb5;font-size:10px}
+.profileExperience{position:relative;min-height:calc(100svh - 76px);overflow:hidden;background:#05070a}
+.profileNeuralCanvas{position:absolute;inset:0;z-index:0}
+.profileNetworkShade{position:absolute;z-index:1;inset:0;pointer-events:none;background:linear-gradient(90deg,#05070af5 0%,#05070ad9 32%,#05070a5c 54%,#05070a12 100%)}
+.profileComposition{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));min-height:calc(100svh - 76px);padding:clamp(25px,5vh,56px) clamp(22px,5vw,72px);pointer-events:none}
+.profileThird{grid-column:1;width:min(100%,430px);align-self:center}
+.profileIdentity{display:grid;grid-template-columns:minmax(0,1fr) 108px;align-items:end;column-gap:0}
+.profileIdentityText{position:relative;min-width:0;align-self:end;padding:0 0 30px}
+.profileIdentityText h1{position:relative;z-index:2;margin:0 0 8px;font-size:clamp(25px,3.1vw,44px);line-height:1;letter-spacing:-.055em;overflow-wrap:anywhere;text-shadow:0 2px 12px #000}
+.profileIdentityText p{position:relative;z-index:2;margin:0 0 10px;color:#d2d8dd;font-size:11px;letter-spacing:.11em}
+.profileIdentityLine{position:absolute;z-index:2;right:-1px;bottom:19px;width:calc(100% + 1px);height:1px;background:#fff;box-shadow:0 0 8px #ffffff55}
+.profileAvatarFrame{position:relative;z-index:3;width:108px;height:108px;padding:4px;border:2px solid #fff;border-radius:50%;background:#05070a;box-shadow:0 0 20px #ffffff24}
+.profileAvatar{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover}
+.profileInformationPanel{margin-top:-1px;padding:19px 23px 22px;background:#080b10d9;border:0;border-radius:0 0 9px 9px;backdrop-filter:blur(9px);box-shadow:0 16px 44px #0005}
+.profileInformationPanel h2{margin:12px 0 5px;font-size:clamp(23px,2.3vw,30px);letter-spacing:-.04em}
+.profileBadges{justify-content:flex-start;margin:12px 0 17px}
+.profileBioSection,.profileStatistics{padding-top:15px;border-top:1px solid #ffffff20;margin-top:14px}
+.profileBioSection h3,.profileStatistics h3{margin:0 0 9px;color:#c4cdd5;font-size:10px;letter-spacing:.19em}
+.profileBiography,.profileBiographyEmpty{white-space:pre-wrap;overflow-wrap:anywhere;color:#d5dce2;font-size:13px;line-height:1.75;margin:0}
+.profileBiographyEmpty{color:#929da7;font-style:italic}
+.profileStatistics dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin:0}
+.profileStatistics dl div{display:grid;gap:5px;min-width:0}
+.profileStatistics dt{color:#8e9aa5;font-size:10px}
+.profileStatistics dd{margin:0;color:#e9edf0;font-size:13px;font-weight:700;overflow-wrap:anywhere}
+.profileStatistics time{font-variant-numeric:tabular-nums}
+.profileInformationPanel .profileEdit{margin:19px 0 0}
+.profileConnectionsNote{margin:12px 0 0;color:#98a3ad;font-size:11px;line-height:1.5}
+.profileSceneHint{position:absolute;right:4vw;bottom:21px;margin:0;color:#c2c9d0;font-size:11px;text-align:right;text-shadow:0 2px 8px #000}
+.profileThird{pointer-events:auto}
+.profileNeuronPending{position:absolute;z-index:1;top:50%;left:66%;transform:translate(-50%,-50%);color:#d5dbe0;font-size:13px}
+@media(max-width:1050px){.profileComposition{grid-template-columns:minmax(350px,42%) 1fr;padding-inline:32px}.profileThird{width:100%}.networkControls{width:min(350px,calc(100vw - 32px))}}
+@media(max-width:700px){.networkExplorer{min-height:calc(100svh - 66px);padding-bottom:24px}.networkExplorerCanvas{position:fixed;inset:66px 0 0;height:calc(100svh - 66px)}.networkExplorerShade{background:linear-gradient(180deg,#05070ac7 0%,#05070a55 44%,#05070a20 100%)}.networkControls{position:relative;top:auto;left:auto;width:calc(100% - 28px);max-height:none;margin:14px auto;padding:18px}.neuralPlayerPanel{position:relative;top:auto;right:auto;width:calc(100% - 28px);max-height:55svh;margin:14px auto}.profileExperience{min-height:calc(100svh - 66px)}.profileNeuralCanvas{position:absolute;inset:0;min-height:100%}.profileNetworkShade{background:linear-gradient(180deg,#05070af0 0%,#05070ad9 49%,#05070a63 100%)}.profileComposition{display:block;min-height:calc(100svh - 66px);padding:27px 18px 130px}.profileThird{width:min(100%,540px);margin:0 auto}.profileIdentity{grid-template-columns:minmax(0,1fr) 82px}.profileAvatarFrame{width:82px;height:82px}.profileIdentityText{padding-bottom:23px}.profileIdentityText h1{font-size:clamp(24px,7vw,38px)}.profileIdentityLine{bottom:14px}.profileInformationPanel{padding:18px 18px 20px}.profileSceneHint{position:relative;right:auto;bottom:auto;margin:23px auto 0;max-width:440px;text-align:center;line-height:1.6}.profileNeuronPending{top:auto;bottom:36px;left:50%;white-space:nowrap}.neuralCanvasMessage{bottom:80px}}
+@media(prefers-reduced-motion:reduce){.networkLoading{animation:none!important}}

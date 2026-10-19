@@ -1,4 +1,4 @@
-# SCAMTASTIC v0.2.1
+# SCAMTASTIC v0.3.0
 
 An invite-only, free-to-play social strategy game. SCAMCOINS have no real-world value.
 
@@ -17,6 +17,16 @@ Connect the repository to the existing Vercel project with framework preset **Ne
 - `/admin` workflows for reviewing applications, inviting approved applicants through Supabase Auth email links, player moderation, referral codes, and append-only audit views.
 - `/settings` for profile preferences and referral management; `/profile/[username]` for public profiles.
 - `/game` and `/admin` are checked server-side. Only authenticated players with a non-banned profile may use the game.
+
+## v0.3.0 — Neural network
+
+- The home page now renders real player neurons and eligible gameplay relationships instead of a decorative placeholder graph.
+- `/network` provides a paginated 3D viewer with orbit/free-flight controls, bounded username search, player inspection, and profile navigation.
+- Public profiles combine the existing procedural avatar and badges with a responsive, interactive network scene and actual referral/connection/interaction totals.
+- Neuron positions and idempotent relationship events use a separate, restrictive Supabase schema. New profiles are placed automatically, and existing active profiles require a manual, retryable backfill.
+- Review and manually apply [`supabase/migrations/20261019010000_v030_neural_network.sql`](./supabase/migrations/20261019010000_v030_neural_network.sql) only after staging validation. See [`docs/NEURAL-NETWORK.md`](./docs/NEURAL-NETWORK.md) for migration order, backfill, access checks, and rollback guidance.
+
+The current game does not yet emit eligible player-to-player events. Until a trusted gameplay feature registers them, the graph intentionally contains no relationship edges.
 
 ### Supabase setup
 

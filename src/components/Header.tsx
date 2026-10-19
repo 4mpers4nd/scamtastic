@@ -40,11 +40,13 @@ export default async function Header() {
       </Link>
       <nav className="headerNav" aria-label="Main navigation">
         <Link href="/#about">About</Link>
+        <Link href="/network">Network</Link>
         <Link href="/apply">Request Access</Link>
         <details className="siteMenu">
           <summary>Menu</summary>
           <div className="accountDropdown">
             <Link href="/#about">About</Link>
+            <Link href="/network">Player Network</Link>
             <Link href="/apply">Request Access</Link>
           </div>
         </details>

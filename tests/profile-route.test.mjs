@@ -7,7 +7,11 @@ test('profile links encode ampersands so the username remains one route segment'
 
   assert.equal(href, '/profile/Ampers%26');
   assert.equal(
-    profileUsernameFromRouteParam(decodeURIComponent(new URL(href, 'https://scamtastic.test').pathname.split('/').at(-1))),
+    profileUsernameFromRouteParam(
+      decodeURIComponent(
+        new URL(href, 'https://scamtastic.test').pathname.split('/').at(-1),
+      ),
+    ),
     'Ampers&',
   );
 });

@@ -13,10 +13,16 @@
 - Public profiles, account settings and founder badge storage
 - Requires reviewed Supabase schema migration and environment/email setup before deployment
 
+## v0.3.0 — Neural network
+- Persistent procedurally placed nodes for active player profiles and a manual idempotent backfill
+- Public-safe, paginated network and search RPCs; server-authorized, idempotent gameplay relationship recording
+- Interactive Three.js homepage, `/network` viewer, and responsive profile-network scenes
+- Gameplay features must explicitly emit eligible interactions before relationships appear
+
 ## v0.2 — Social economy
 - Fixed supply of SCAMCOINS, atomic double-entry ledger, treasury
 - Player-created opportunities and contracts, escrow, disputes
-- Real social graph and user profiles
+- Gameplay integrations for player-to-player interactions and reputation
 
 ## Later
 - Node-based software studio and virtual OS
