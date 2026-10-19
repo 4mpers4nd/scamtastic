@@ -37,7 +37,8 @@ export async function claimAdministratorInvitation(
       error: true,
     };
   }
-  revalidatePath('/game');
+  revalidatePath('/dashboard');
+  revalidatePath('/');
   return { message: 'Account profile created. Set your password to complete activation.', error: false };
 }
 
@@ -221,7 +222,8 @@ export async function setPlayerSuspended(
     revalidatePath('/admin');
     revalidatePath('/admin/players');
     revalidatePath(`/admin/players/${id}`);
-    revalidatePath('/game');
+    revalidatePath('/');
+    revalidatePath('/dashboard');
     return { message: suspended === 'true' ? 'Player suspended.' : 'Player restored.', error: false };
   } catch (error) {
     console.error('Player access update failed:', error);

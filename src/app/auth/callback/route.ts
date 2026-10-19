@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/server';
 
 function safeDestination(value: string | null) {
-  if (value === '/game' || value === '/settings' || value === '/activate') return value;
+  if (value === '/game') return '/dashboard';
+  if (value === '/dashboard' || value === '/settings' || value === '/activate') return value;
   if (value && /^\/invite\/[a-f0-9]{64}$/.test(value)) return value;
-  return '/game';
+  return '/dashboard';
 }
 
 export async function GET(request: NextRequest) {

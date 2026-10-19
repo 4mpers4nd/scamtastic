@@ -26,7 +26,7 @@ export default function ActivationForm() {
     try {
       const { error: passwordError } = await supabaseBrowser().auth.updateUser({ password });
       if (passwordError) throw passwordError;
-      router.replace('/game');
+      router.replace('/dashboard');
       router.refresh();
     } catch {
       setError('Unable to set your password. The activation link may have expired; request a new one.');

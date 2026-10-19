@@ -200,6 +200,118 @@
   font-size: 12px;
 }
 
+.commandCenter {
+  width: min(100% - 36px, 1420px);
+  min-height: calc(100svh - 76px);
+  margin: 0 auto;
+  padding: clamp(34px, 5vw, 68px) 0;
+}
+
+.commandCenterHeading {
+  margin-bottom: 28px;
+}
+
+.commandCenterHeading h1 {
+  margin: 12px 0;
+  font-size: clamp(34px, 5vw, 56px);
+  letter-spacing: -.06em;
+}
+
+.commandCenterHeading p {
+  color: var(--color-text-secondary);
+}
+
+.commandStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  gap: 14px;
+  margin: 28px 0;
+}
+
+.commandStats .card {
+  display: flex;
+  min-height: 205px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px;
+}
+
+.commandCardTop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.commandAvatar {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-cyan);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 16px #58dceb40;
+}
+
+.commandAvatarFallback {
+  display: grid;
+  place-items: center;
+  background: var(--color-surface-elevated);
+  color: var(--color-cyan);
+  font-weight: 800;
+}
+
+.commandProfileCard h2,
+.commandPlaceholderCard h2 {
+  margin: 0;
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+
+.commandProfileCard p,
+.commandPlaceholderCard p {
+  margin: 5px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.commandStats .commandStatCard dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px 25px;
+  width: 100%;
+  margin: auto 0;
+}
+
+.commandStatCard dl div {
+  display: grid;
+  gap: 5px;
+}
+
+.commandStatCard dt {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+.commandStatCard dd {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 27px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.commandStatCard > a {
+  color: var(--color-cyan);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.commandPlaceholderCard {
+  opacity: .82;
+}
+
 @media (max-width: 800px) {
   .headerPrimaryLinks,
   .headerGuestActions {
@@ -232,6 +344,16 @@
   .followingActivityFeed .panelHeading {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .commandCenter {
+    width: calc(100% - 32px);
+    padding: 34px 0;
+  }
+
+  .commandStats .card {
+    min-height: 180px;
+    padding: 20px;
   }
 }
 
