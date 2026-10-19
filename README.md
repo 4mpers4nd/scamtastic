@@ -1,6 +1,6 @@
-# SCAMTASTIC v0.3.0
+# SCAMTASTIC v0.4.0
 
-An invite-only, free-to-play social strategy game. SCAMCOINS have no real-world value.
+An invite-only, free-to-play social strategy experiment. Bits are a placeholder; the application has no balances, transactions, or earnings.
 
 ## Run locally
 
@@ -14,19 +14,26 @@ Connect the repository to the existing Vercel project with framework preset **Ne
 
 - Session-aware account navigation with accessible sign-out and admin entry.
 - Public access applications with server-side validation, duplicate protection, referral attribution, and per-IP rate limiting.
-- `/admin` workflows for reviewing applications, inviting approved applicants through Supabase Auth email links, player moderation, referral codes, and append-only audit views.
-- `/settings` for profile preferences and referral management; `/profile/[username]` for public profiles.
-- `/game` and `/admin` are checked server-side. Only authenticated players with a non-banned profile may use the game.
+- `/admin` workflows for reviewing applications, invitations, player moderation, and append-only audit views. Historical referral attribution remains in the database.
+- `/settings` for profile preferences and invitations; `/profile/[username]` for public profiles, follows, and follower/following lists.
+- Anonymous visitors see the public landing page. Active players see the Network Command Center at `/` or `/dashboard`; `/game` redirects to `/dashboard`.
 
 ## v0.3.0 — Neural network
 
-- The home page now renders real player neurons and eligible gameplay relationships instead of a decorative placeholder graph.
+- The public landing page and `/network` use real player neurons and eligible gameplay relationships instead of a decorative placeholder graph.
 - `/network` provides a paginated 3D viewer with orbit/free-flight controls, bounded username search, player inspection, and profile navigation.
-- Public profiles combine the existing procedural avatar and badges with a responsive, interactive network scene and actual referral/connection/interaction totals.
+- Public profiles combine the existing procedural avatar and badges with a responsive, interactive network scene and actual connection/interaction totals.
 - Neuron positions and idempotent relationship events use a separate, restrictive Supabase schema. New profiles are placed automatically, and existing active profiles require a manual, retryable backfill.
 - Review and manually apply [`supabase/migrations/20261019010000_v030_neural_network.sql`](./supabase/migrations/20261019010000_v030_neural_network.sql) only after staging validation. See [`docs/NEURAL-NETWORK.md`](./docs/NEURAL-NETWORK.md) for migration order, backfill, access checks, and rollback guidance.
 
 The current game does not yet emit eligible player-to-player events. Until a trusted gameplay feature registers them, the graph intentionally contains no relationship edges.
+
+## v0.4.0 — Social foundations
+
+- Authenticated players can follow/unfollow active profiles, see public follower lists, and browse a bounded recent activity feed from players they follow.
+- `/` and `/dashboard` provide profile, invitation, social, and network stats from existing data. Bits and opportunities remain clearly marked placeholders.
+- `/admin/players` is a searchable, paginated directory with individual management pages; historical referral data remains stored but its old management screens are retired.
+- Review and manually apply the follow and activity migrations to the development database only. See [`docs/SOCIAL-FOUNDATIONS.md`](./docs/SOCIAL-FOUNDATIONS.md) for the required order and access checks. These migrations have not been applied by this change.
 
 ### Supabase setup
 
@@ -37,7 +44,7 @@ The current game does not yet emit eligible player-to-player events. Until a tru
 5. Follow [`docs/EMAIL-SETUP.md`](./docs/EMAIL-SETUP.md) to configure environment-scoped Vercel URLs, Resend DNS, Supabase SMTP, and Auth redirects. Locally, use `http://localhost:3000`; preview deployments refuse the production hostname.
 6. Supabase Auth generates one-time invite or magic-link tokens; Resend sends the activation email, and Supabase enforces token expiry and replay protection. If delivery is not configured, approval is recorded but the UI reports the failure and allows an administrator to retry without creating another account.
 
-Player avatars are deterministic geometric SVGs generated from a random profile seed and a stored generator version; no avatar images are uploaded or stored. Players can reroll their own avatar in settings. Passwords are handled only by Supabase Auth. SCAMCOINS cannot be bought, sold, redeemed, or exchanged for real money.
+Player avatars are deterministic geometric SVGs generated from a random profile seed and a stored generator version; no avatar images are uploaded or stored. Players can reroll their own avatar in settings. Passwords are handled only by Supabase Auth. Bits have no real-world value; the application currently has no Bits balances or transactions.
 
 No production migration or deployment has been run as part of this code change.
 

@@ -16,24 +16,26 @@
 ## v0.3.0 — Neural network
 - Persistent procedurally placed nodes for active player profiles and a manual idempotent backfill
 - Public-safe, paginated network and search RPCs; server-authorized, idempotent gameplay relationship recording
-- Interactive Three.js homepage, `/network` viewer, and responsive profile-network scenes
+- Interactive Three.js public landing page, `/network` viewer, and responsive profile-network scenes
 - Gameplay features must explicitly emit eligible interactions before relationships appear
 
-## v0.4.0 — Invitation system and network identity
+## v0.4.0 — Invitations, network identity, and social foundations
 - Credit-backed player invitations remain subject to administrator application review; verified administrators can issue expiring, email-bound direct authorizations
 - Player credit requests, admin invitation/credit management, secure invitation landing and account activation
 - Bounded administrator email composer with sanitized templates, server-side delivery, and minimal history metadata
 - Render-only Scamtastic system neuron, centralized rendering palette, and invitation-origin neural relationships
 - Requires reviewing and applying `supabase/migrations/20261019020000_v040_invitations.sql` to development before deploying the application
+- Role-aware public landing page and Network Command Center with live profile, invitation, follow, and network metrics
+- Directional player following, public follower/following lists, and a bounded recent feed of eligible public gameplay events
+- Searchable, paginated admin player directory with individual player management
+- Requires reviewing and applying the social migrations to development; see `docs/SOCIAL-FOUNDATIONS.md`
 
-## v0.2 — Social economy
-- Fixed supply of SCAMCOINS, atomic double-entry ledger, treasury
-- Player-created opportunities and contracts, escrow, disputes
-- Gameplay integrations for player-to-player interactions and reputation
+## Future — Bits placeholder
+- Bits remain a fictional placeholder. No balances, transactions, purchases, redemptions, earnings, or financial leaderboard are implemented.
 
 ## Later
 - Node-based software studio and virtual OS
 - Fictional security challenges (never real malware)
 - Android app
 
-All approved players play for free. SCAMCOINS cannot be bought, sold, redeemed or exchanged for real money. Donations provide no gameplay benefits.
+All approved players play for free. Bits have no real-world value. Donations provide no gameplay benefits.

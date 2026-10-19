@@ -1,6 +1,6 @@
 # Neural network v0.3.0
 
-The network displays only active profiles and recorded, eligible player-to-player gameplay relationships. It does not generate decorative players or links. The home page and `/network` viewer use the paginated public snapshot API; public profiles show the selected player's real node and up to 100 strongest direct relationships.
+The network displays only active profiles and recorded, eligible player-to-player gameplay relationships. It does not generate decorative players or links. The anonymous home page and `/network` viewer use the paginated public snapshot API; active players see a data-backed command center at `/` and `/dashboard`. Public profiles show the selected player's real node and up to 100 strongest direct relationships.
 
 ## Database rollout
 

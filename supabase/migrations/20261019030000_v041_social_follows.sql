@@ -48,6 +48,9 @@ begin
     ),
     'isFollowing', (
       v_viewer is not null and exists (
+        select 1 from public.profiles
+        where id = v_viewer and not is_banned
+      ) and exists (
         select 1 from public.player_follows f
         where f.follower_id = v_viewer and f.followed_id = v_target
       )
