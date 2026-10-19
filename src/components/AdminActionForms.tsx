@@ -2,11 +2,8 @@
 
 import { useActionState, useState } from 'react';
 import {
-  createOwnReferral,
   reviewApplication,
-  revokeOwnReferral,
   retryActivation,
-  revokeReferral,
   setPlayerSuspended,
   updatePlayer,
   updateOwnProfile,
@@ -186,27 +183,6 @@ export function PlayerEditForm({
   );
 }
 
-export function ReferralRevokeForm({ id }: { id: string }) {
-  const [state, action, pending] = useActionState(revokeReferral, null);
-  return (
-    <form action={action}>
-      <input type="hidden" name="codeId" value={id} />
-      <button
-        className="button danger"
-        disabled={pending}
-        onClick={(event) => {
-          if (!window.confirm('Revoke this referral code? Existing links will stop working.')) {
-            event.preventDefault();
-          }
-        }}
-      >
-        {pending ? 'Revoking…' : 'Revoke'}
-      </button>
-      <Feedback state={state} />
-    </form>
-  );
-}
-
 export function OwnProfileForm({
   displayName,
   bio,
@@ -229,43 +205,6 @@ export function OwnProfileForm({
       <p className="muted">Your avatar is generated from a saved profile seed. Account credentials and username are not editable here.</p>
       <button className="button primary wide" disabled={pending}>
         {pending ? 'Saving…' : 'Save settings'}
-      </button>
-      <Feedback state={state} />
-    </form>
-  );
-}
-
-export function OwnReferralForm() {
-  const [state, action, pending] = useActionState(createOwnReferral, null);
-  return (
-    <form action={action} className="inlineForm">
-      <label>
-        Usage limit
-        <input type="number" name="usageLimit" min={1} max={100} defaultValue={5} required />
-      </label>
-      <button className="button secondary" disabled={pending}>
-        {pending ? 'Creating…' : 'Create referral code'}
-      </button>
-      <Feedback state={state} />
-    </form>
-  );
-}
-
-export function OwnReferralRevokeForm({ id }: { id: string }) {
-  const [state, action, pending] = useActionState(revokeOwnReferral, null);
-  return (
-    <form action={action}>
-      <input type="hidden" name="codeId" value={id} />
-      <button
-        className="button danger"
-        disabled={pending}
-        onClick={(event) => {
-          if (!window.confirm('Revoke this referral code? Existing links will stop working.')) {
-            event.preventDefault();
-          }
-        }}
-      >
-        {pending ? 'Revoking…' : 'Revoke'}
       </button>
       <Feedback state={state} />
     </form>

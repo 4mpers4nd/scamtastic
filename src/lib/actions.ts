@@ -220,6 +220,7 @@ export async function setPlayerSuspended(
     if (error) throw error;
     revalidatePath('/admin');
     revalidatePath('/admin/players');
+    revalidatePath(`/admin/players/${id}`);
     revalidatePath('/game');
     return { message: suspended === 'true' ? 'Player suspended.' : 'Player restored.', error: false };
   } catch (error) {
@@ -253,6 +254,7 @@ export async function updatePlayer(
     });
     if (error) throw error;
     revalidatePath('/admin/players');
+    revalidatePath(`/admin/players/${id}`);
     revalidatePath('/profile/[username]', 'page');
     return { message: 'Player profile updated.', error: false };
   } catch (error) {

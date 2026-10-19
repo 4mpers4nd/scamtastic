@@ -390,7 +390,6 @@ export default function NeuralExplorer() {
           <h2>{selected.profile.display_name || selected.profile.username}</h2>
           <p className="profileUsername">@{selected.profile.username}</p>
           <dl className="neuralPlayerStats">
-            <div><dt>Referrals</dt><dd>{selected.profile.referral_count}</dd></div>
             <div><dt>Connections</dt><dd>{selected.connectionCount}</dd></div>
             <div><dt>Interactions</dt><dd>{selected.interactionCount}</dd></div>
           </dl>

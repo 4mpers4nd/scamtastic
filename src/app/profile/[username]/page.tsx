@@ -124,10 +124,6 @@ export default async function PublicProfilePage({
                 <h3 id="profile-stats-heading">// NETWORK RECORD</h3>
                 <dl>
                   <div>
-                    <dt>Referrals</dt>
-                    <dd>{profile.profile.referral_count}</dd>
-                  </div>
-                  <div>
                     <dt>Connections</dt>
                     <dd>{profile.connectionCount}</dd>
                   </div>
