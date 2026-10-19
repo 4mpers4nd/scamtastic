@@ -55,6 +55,15 @@ export async function POST(request: NextRequest) {
   }
 
   const pepper = process.env.APPLICATION_RATE_LIMIT_SECRET;
+
+  console.info('[Application configuration diagnostic]', {
+    variablePresent: pepper !== undefined,
+    variableLength: pepper?.length ?? 0,
+    vercelEnvironment: process.env.VERCEL_ENV ?? 'unknown',
+    vercelBranch: process.env.VERCEL_GIT_COMMIT_REF ?? 'unknown',
+    deploymentId: process.env.VERCEL_DEPLOYMENT_ID ?? 'unknown',
+  });
+
   if (!pepper || pepper.length < 32) {
     console.error('Application submissions are disabled: rate-limit secret is not configured.');
     return NextResponse.json(
