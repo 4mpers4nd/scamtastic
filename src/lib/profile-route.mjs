@@ -7,5 +7,14 @@ export function profileHref(username) {
 export function profileUsernameFromRouteParam(value) {
   if (typeof value !== 'string') return null;
 
-  return USERNAME_PATTERN.test(value) ? value : null;
+  let username = value;
+  if (value.includes('%')) {
+    try {
+      username = decodeURIComponent(value);
+    } catch {
+      return null;
+    }
+  }
+
+  return USERNAME_PATTERN.test(username) ? username : null;
 }

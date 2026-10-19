@@ -28,3 +28,35 @@ export function connectionRadius(strength, maxStrength = 20) {
 
   return 0.035 + (Math.min(strength, maxStrength) / maxStrength) * 0.095;
 }
+
+export function initialNeuralView(nodes, focusId = null) {
+  const visibleNodes = nodes.filter(
+    (node) => [node.x, node.y, node.z].every(Number.isFinite),
+  );
+  if (visibleNodes.length === 0) {
+    return { target: { x: 0, y: 0, z: 0 }, distance: 24.3 };
+  }
+
+  const min = { x: Infinity, y: Infinity, z: Infinity };
+  const max = { x: -Infinity, y: -Infinity, z: -Infinity };
+  for (const node of visibleNodes) {
+    min.x = Math.min(min.x, node.x);
+    min.y = Math.min(min.y, node.y);
+    min.z = Math.min(min.z, node.z);
+    max.x = Math.max(max.x, node.x);
+    max.y = Math.max(max.y, node.y);
+    max.z = Math.max(max.z, node.z);
+  }
+
+  const center = {
+    x: (min.x + max.x) / 2,
+    y: (min.y + max.y) / 2,
+    z: (min.z + max.z) / 2,
+  };
+  const size = Math.hypot(max.x - min.x, max.y - min.y, max.z - min.z);
+  const focus = focusId && visibleNodes.find((node) => node.id === focusId);
+  return {
+    target: focus ? { x: focus.x, y: focus.y, z: focus.z } : center,
+    distance: Math.max(18, Math.max(12, size * 0.75) * 1.8),
+  };
+}

@@ -58,7 +58,12 @@ export async function reviewApplication(
           p_application_id: id,
           p_status: 'failed',
         });
-        if (statusError) console.error('Unable to record activation delivery failure:', statusError);
+        if (statusError) {
+          console.error(
+            'Unable to record activation delivery failure:',
+            statusError.code ?? 'unknown database error',
+          );
+        }
         console.error(
           'Activation email delivery failed:',
           deliveryError instanceof Error ? deliveryError.message : 'unknown error',
@@ -75,7 +80,10 @@ export async function reviewApplication(
         p_status: 'sent',
       });
       if (statusError) {
-        console.error('Activation email sent but status update failed:', statusError);
+        console.error(
+          'Activation email sent but status update failed:',
+          statusError.code ?? 'unknown database error',
+        );
         revalidatePath('/admin/applications');
         return {
           message: 'Approved and the email was sent, but its delivery status could not be recorded.',
@@ -92,7 +100,10 @@ export async function reviewApplication(
       error: false,
     };
   } catch (error) {
-    console.error('Application review failed:', error);
+    console.error(
+      'Application review failed:',
+      error instanceof Error ? error.message : 'Unknown error.',
+    );
     return {
       message: 'Review failed. The application may already have been reviewed; refresh and try again.',
       error: true,
@@ -132,7 +143,12 @@ export async function retryActivation(
         p_application_id: id,
         p_status: 'failed',
       });
-      if (statusError) console.error('Unable to record activation retry failure:', statusError);
+      if (statusError) {
+        console.error(
+          'Unable to record activation retry failure:',
+          statusError.code ?? 'unknown database error',
+        );
+      }
       throw mailError;
     }
     const { error: statusError } = await db.rpc('admin_set_activation_status', {
@@ -143,7 +159,10 @@ export async function retryActivation(
     revalidatePath('/admin/applications');
     return { message: 'Activation email sent.', error: false };
   } catch (error) {
-    console.error('Activation email retry failed:', error);
+    console.error(
+      'Activation email retry failed:',
+      error instanceof Error ? error.message : 'Unknown error.',
+    );
     return { message: 'Unable to send the activation email. Check Supabase Auth email settings.', error: true };
   }
 }

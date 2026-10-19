@@ -57,7 +57,7 @@ The table has no API-role write grants. Do not grant the badge to an account unt
 
 Application approval records the decision and audit row atomically. The backend generates a one-time Supabase Auth invite link (or a magic link for an existing Auth account) and sends it through Resend. The callback verifies the one-time token, matches the authenticated, verified email to an approved application, and creates the player profile. The activation screen then lets the player set a password. A rejected or pending application cannot be claimed. Existing authenticated profiles are not recreated.
 
-Configure a verified sender/domain in Resend and set the server-only `RESEND_API_KEY` and `EMAIL_FROM` variables. Set `NEXT_PUBLIC_SITE_URL` to the canonical HTTPS origin. Set Supabase Auth's site URL and production/local callback redirect allow-list for the site. Delivery depends on Resend configuration; the dashboard reports failures and supports retry. Do not create an invite by exposing an application ID.
+Configure a verified sender/domain in Resend and set the server-only `RESEND_API_KEY` and `EMAIL_FROM` variables. Set `NEXT_PUBLIC_SITE_URL` to the canonical HTTPS origin for the current deployment environment; development and preview senders reject production URLs. Set Supabase Auth's site URL and callback redirect allow-list for production, approved previews, and localhost. See [`../docs/EMAIL-SETUP.md`](../docs/EMAIL-SETUP.md) for DNS, Vercel, SMTP, and redirect setup. Delivery depends on Resend configuration; the dashboard reports failures and supports retry. Retries generate a fresh magic link for an already-created Auth account rather than creating a second account. Do not create an invite by exposing an application ID.
 
 ## Applying
 

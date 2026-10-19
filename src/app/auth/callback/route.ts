@@ -31,7 +31,14 @@ export async function GET(request: NextRequest) {
         new URL(safeDestination(url.searchParams.get('next')), url.origin),
       );
     } catch (error) {
-      console.error('Authentication callback failed:', error);
+      const code =
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        typeof error.code === 'string'
+          ? error.code
+          : 'unknown';
+      console.error('Authentication callback failed:', code);
     }
   }
 

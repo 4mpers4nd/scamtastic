@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import {
   createOwnReferral,
   reviewApplication,
@@ -82,6 +82,50 @@ export function ActivationRetryForm({ id }: { id: string }) {
       </button>
       <Feedback state={state} />
     </form>
+  );
+}
+
+export function TestEmailForm() {
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState<ActionResult>(null);
+
+  async function sendTestEmail() {
+    setPending(true);
+    setMessage(null);
+    try {
+      const response = await fetch('/api/admin/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const result: unknown = await response.json();
+      if (!response.ok) {
+        const error =
+          typeof result === 'object' &&
+          result !== null &&
+          'error' in result &&
+          typeof result.error === 'string'
+            ? result.error
+            : 'The test email could not be sent.';
+        throw new Error(error);
+      }
+      setMessage({ message: 'Test email sent to your verified administrator address.', error: false });
+    } catch (error) {
+      setMessage({
+        message: error instanceof Error ? error.message : 'The test email could not be sent.',
+        error: true,
+      });
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <div>
+      <button type="button" className="button secondary" onClick={sendTestEmail} disabled={pending}>
+        {pending ? 'Sending test email…' : 'Send test email to me'}
+      </button>
+      <Feedback state={message} />
+    </div>
   );
 }
 

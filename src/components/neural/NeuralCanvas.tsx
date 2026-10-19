@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { avatarSvgDataUri } from '@/lib/avatar';
-import { connectionRadius } from '@/lib/neural/geometry.mjs';
+import { connectionRadius, initialNeuralView } from '@/lib/neural/geometry.mjs';
+import { createFrameLoop } from '@/lib/neural/frame-loop.mjs';
 import type { NeuralConnection, NeuralSearchResult } from '@/lib/neural/types';
 
 type CameraMode = 'orbit' | 'flight';
@@ -74,29 +75,20 @@ export default function NeuralCanvas({
         Number.isFinite(node.x) && Number.isFinite(node.y) && Number.isFinite(node.z),
     );
     const nodeIndex = new Map(visibleNodes.map((node, index) => [node.id, index]));
-    const bounds = new THREE.Box3();
-    for (const node of visibleNodes) bounds.expandByPoint(new THREE.Vector3(node.x, node.y, node.z));
-    const center = visibleNodes.length
-      ? bounds.getCenter(new THREE.Vector3())
-      : new THREE.Vector3();
-    const size = visibleNodes.length
-      ? bounds.getSize(new THREE.Vector3()).length()
-      : 18;
-    const radius = Math.max(12, size * 0.75);
-    const focusNode = visibleNodes.find((node) => node.id === focusId);
-    const target = focusNode
-      ? new THREE.Vector3(focusNode.x, focusNode.y, focusNode.z)
-      : center.clone();
+    const initialView = initialNeuralView(visibleNodes, focusId);
+    const target = new THREE.Vector3(
+      initialView.target.x,
+      initialView.target.y,
+      initialView.target.z,
+    );
     const yawStart = 0;
     const pitchStart = 0.14;
-    const orbitRadius = Math.max(18, radius * 1.8);
     let yaw = yawStart;
     let pitch = pitchStart;
-    let distance = orbitRadius;
-    let frame: number | null = null;
+    let distance = initialView.distance;
     let previousFrame = performance.now();
     let needsRender = true;
-    let renderFrame: FrameRequestCallback = () => {};
+    let frameLoop: ReturnType<typeof createFrameLoop> | null = null;
     let pointerMoved = false;
     let lastPointerUp = 0;
     let lastSelectedId: string | null = null;
@@ -105,12 +97,9 @@ export default function NeuralCanvas({
     let previousPinchDistance = 0;
     let previousCenter = { x: 0, y: 0 };
 
-    function scheduleFrame() {
-      if (frame === null) frame = requestAnimationFrame(renderFrame);
-    }
     function requestRender() {
       needsRender = true;
-      scheduleFrame();
+      frameLoop?.schedule();
     }
 
     const nodeGeometry = new THREE.SphereGeometry(0.48, 12, 10);
@@ -307,8 +296,6 @@ export default function NeuralCanvas({
       scene.updateMatrixWorld();
       requestRender();
     }
-    updateSelection();
-
     function resize() {
       const width = canvasElement.clientWidth;
       const height = canvasElement.clientHeight;
@@ -318,14 +305,8 @@ export default function NeuralCanvas({
       camera.updateProjectionMatrix();
       requestRender();
     }
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(canvasElement);
-    resize();
-    updateCamera();
-
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const frameScene: FrameRequestCallback = (time) => {
-      frame = null;
+    const frameScene = (time: number) => {
       const elapsed = Math.min((time - previousFrame) / 1000, 0.05);
       previousFrame = time;
       const shouldRotate =
@@ -361,10 +342,19 @@ export default function NeuralCanvas({
         renderer.render(scene, camera);
         needsRender = false;
       }
-      if (shouldRotate || movingInFlight) scheduleFrame();
+      return shouldRotate || movingInFlight;
     };
-    renderFrame = frameScene;
-    scheduleFrame();
+    frameLoop = createFrameLoop(
+      frameScene,
+      (callback) => requestAnimationFrame(callback),
+      (frame) => cancelAnimationFrame(frame),
+    );
+
+    updateCamera();
+    updateSelection();
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(canvasElement);
+    resize();
 
     function pointerPosition(event: PointerEvent) {
       const rect = canvasElement.getBoundingClientRect();
@@ -513,7 +503,7 @@ export default function NeuralCanvas({
     canvasElement.addEventListener('webglcontextlost', contextLost);
 
     return () => {
-      if (frame !== null) cancelAnimationFrame(frame);
+      frameLoop?.dispose();
       resizeObserver.disconnect();
       canvasElement.removeEventListener('pointerdown', pointerDown);
       canvasElement.removeEventListener('pointermove', pointerMove);
