@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { getUserOrNull } from '@/lib/auth-state.mjs';
 
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -27,10 +28,10 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  await getUserOrNull(supabase.auth);
   return response;
 }
 
 export const config = {
-  matcher: ['/game/:path*'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

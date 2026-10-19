@@ -1,23 +1,20 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import Header from '@/components/Header';
-import { supabaseServer } from '@/lib/server';
+import { getAccessDecision } from '@/lib/auth-state.mjs';
+import { authenticatedUser } from '@/lib/server';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Game() {
-  const db = await supabaseServer();
-  const {
-    data: { user },
-    error: authError,
-  } = await db.auth.getUser();
-
-  if (authError || !user) redirect('/login');
+  const { db, user } = await authenticatedUser();
+  if (getAccessDecision(user) === 'login') redirect('/login');
+  const player = user ?? redirect('/login');
 
   const { data: profile, error: profileError } = await db
     .from('profiles')
     .select('username,is_banned')
-    .eq('id', user.id)
+    .eq('id', player.id)
     .maybeSingle();
 
   if (profileError) throw profileError;
