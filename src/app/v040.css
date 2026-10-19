@@ -1,0 +1,534 @@
+:root {
+  --neural-background: #111c29;
+  --neural-background-center: #1a2b3b;
+  --neural-player-core: #ffffff;
+  --neural-player-glow: #e5f4ff;
+  --neural-connection-muted: #607787;
+  --neural-connection-active: #8ddcff;
+  --neural-selection: #b9f5ff;
+}
+
+.hero {
+  background: radial-gradient(circle at 65% 50%, var(--neural-background-center), var(--neural-background) 68%);
+}
+
+.hero:after {
+  background: linear-gradient(90deg, var(--neural-background) 0%, #111c29ee 24%, #111c2988 52%, transparent 100%);
+}
+
+.networkLoading {
+  background: radial-gradient(ellipse at 70% 45%, var(--neural-background-center), var(--neural-background) 70%);
+}
+
+.networkExplorer,
+.profileExperience {
+  background: radial-gradient(ellipse at 65% 45%, var(--neural-background-center), var(--neural-background) 72%);
+}
+
+.networkExplorerShade {
+  background: linear-gradient(90deg, #111c29dc 0%, #111c2966 38%, #111c2912 100%);
+}
+
+.profileNetworkShade {
+  background: linear-gradient(90deg, #111c29f5 0%, #111c29d9 32%, #111c295c 54%, #111c2912 100%);
+}
+
+.systemNodePanel {
+  position: absolute;
+  z-index: 3;
+  top: 22px;
+  right: clamp(16px, 3.5vw, 52px);
+  width: min(340px, calc(100vw - 32px));
+  padding: 22px;
+  color: #f4f6f8;
+  background: #0b0f14e8;
+  border: 1px solid #55d9f566;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 36px #55d9f51c, 0 18px 60px #0008;
+}
+
+.systemNodeLogo {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 16px;
+  color: #fff;
+  font-size: 46px;
+  font-weight: 1000;
+  font-style: italic;
+  line-height: 1;
+  text-shadow: -3px 0 #55d9f5, 3px 0 #e879f9;
+}
+
+.systemNodePanel h2 {
+  margin: 12px 0 18px;
+  font-size: 23px;
+  letter-spacing: .08em;
+}
+
+.systemNodePanel dl {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid #ffffff22;
+}
+
+.systemNodePanel dl div {
+  display: grid;
+  gap: 4px;
+}
+
+.systemNodePanel dt,
+.invitationStats dt {
+  color: #9ba8b8;
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+
+.systemNodePanel dd {
+  margin: 0;
+  color: #f4f6f8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.invitationPage {
+  width: min(100%, 1050px);
+}
+
+.invitationPage h1,
+.invitationLanding h1 {
+  letter-spacing: -.05em;
+}
+
+.invitationDashboard h2,
+.adminInvitationManager h2,
+.emailHistoryPanel h2 {
+  margin: 26px 0 12px;
+  font-size: 19px;
+}
+
+.invitationStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.invitationStats div {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  background: #0c121a99;
+  border: 1px solid #ffffff1c;
+  border-radius: 7px;
+}
+
+.invitationStats dd {
+  margin: 0;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 850;
+}
+
+.invitationLink {
+  margin: 18px 0;
+}
+
+.invitationLink label,
+.customRecipientField {
+  display: block;
+  color: #d5e0ea;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.invitationLink > div {
+  display: flex;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.invitationLink input,
+.invitationRequestForm input,
+.invitationRequestForm textarea,
+.adminInlineForm input,
+.adminInvitationManager input,
+.adminInvitationManager select,
+.emailEditorPanel input,
+.emailEditorPanel select,
+.customRecipientField textarea {
+  width: 100%;
+  min-width: 0;
+  margin-top: 7px;
+  padding: 11px;
+  color: #f4f6f8;
+  background: #080c11;
+  border: 1px solid #3a4856;
+  border-radius: 6px;
+}
+
+.invitationRequestForm {
+  max-width: 620px;
+  margin-top: 12px;
+}
+
+.invitationRequestForm label {
+  margin: 15px 0;
+}
+
+.invitationLandingWrap {
+  background: radial-gradient(circle at 75% 10%, var(--neural-background-center), var(--neural-background) 64%);
+}
+
+.invitationLanding {
+  width: min(100%, 550px);
+}
+
+.inviterIdentity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 14px;
+  border: 1px solid #55d9f544;
+  border-radius: 8px;
+  background: #0b121a99;
+}
+
+.inviterIdentity > div {
+  display: grid;
+  gap: 4px;
+}
+
+.inviterIdentity span,
+.inviterIdentity code,
+.invitationExpiry {
+  color: #95a4b2;
+  font-size: 11px;
+}
+
+.inviterIdentity strong {
+  color: #fff;
+}
+
+.inviterIdentity code {
+  color: #55d9f5;
+}
+
+.invitationAuthorization {
+  color: #55d9f5 !important;
+  font-size: 11px !important;
+  font-weight: 850;
+  letter-spacing: .14em;
+}
+
+.invitationExpiry {
+  margin-top: 22px;
+}
+
+.adminInviteClaimForm {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.adminInlineForm {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 160px auto;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.adminInlineForm label,
+.creditAdjustmentForm label {
+  display: block;
+  color: #d5e0ea;
+  font-size: 12px;
+}
+
+.adminCreditRequest {
+  align-items: center;
+}
+
+.adminCreditRequest p {
+  max-width: 560px;
+  margin: 8px 0 0;
+  color: #9ba8b8;
+  font-size: 12px;
+}
+
+.adminCreditRequest label {
+  min-width: 92px;
+  color: #d5e0ea;
+  font-size: 11px;
+}
+
+.creditAdjustmentForm {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.creditAdjustmentForm input,
+.creditAdjustmentForm select {
+  width: 116px;
+  min-width: 80px;
+}
+
+.adminPlayerCredits {
+  align-items: center;
+}
+
+.invitationDashboard .referralItem,
+.adminInvitationManager .referralItem {
+  align-items: center;
+}
+
+.adminInvitationManager .searchForm {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.adminInvitationManager .searchForm select {
+  min-width: 170px;
+  padding: 10px;
+  color: #f4f6f8;
+  background: #080c11;
+  border: 1px solid #3a4856;
+  border-radius: 6px;
+}
+
+.adminEmailComposer {
+  display: grid;
+  gap: 16px;
+}
+
+.emailComposerGrid {
+  display: grid;
+  grid-template-columns: minmax(250px, .8fr) minmax(360px, 1.4fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.emailRecipientPanel h2,
+.emailEditorPanel h2 {
+  margin: 12px 0;
+  font-size: 18px;
+}
+
+.recipientChoices {
+  display: grid;
+  max-height: 310px;
+  overflow: auto;
+  margin: 12px 0;
+  border-top: 1px solid #ffffff1c;
+}
+
+.recipientChoices label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 3px;
+  border-bottom: 1px solid #ffffff15;
+  cursor: pointer;
+}
+
+.recipientChoices input {
+  accent-color: #55d9f5;
+}
+
+.recipientChoices label span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.recipientChoices small {
+  color: #9ba8b8;
+  overflow-wrap: anywhere;
+}
+
+.customRecipientField textarea {
+  min-height: 78px;
+  resize: vertical;
+}
+
+.emailEditorPanel > label {
+  display: block;
+  margin: 14px 0;
+  color: #d5e0ea;
+  font-size: 12px;
+}
+
+.emailEditorToolbar,
+.emailPreviewTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+.emailEditorToolbar button,
+.emailPreviewTabs button {
+  min-height: 32px;
+  padding: 6px 9px;
+  color: #dce5ed;
+  background: #121a23;
+  border: 1px solid #3a4856;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.emailPreviewTabs button[aria-selected="true"] {
+  color: #08131c;
+  background: #55d9f5;
+  border-color: #55d9f5;
+}
+
+.emailRichTextEditor,
+.emailHtmlPreview,
+.emailTextPreview {
+  display: block;
+  width: 100%;
+  min-height: 250px;
+  padding: 16px;
+  color: #e9eff5;
+  background: #0b1118;
+  border: 1px solid #3a4856;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.emailRichTextEditor:focus {
+  outline: 1px solid #55d9f5;
+}
+
+.emailHtmlPreview {
+  height: 310px;
+  padding: 0;
+}
+
+.emailTextPreview {
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
+.emailTemplateSave,
+.emailSendActions {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.emailTemplateSave label {
+  flex: 1 1 180px;
+  color: #d5e0ea;
+  font-size: 12px;
+}
+
+.emailSendActions {
+  justify-content: space-between;
+}
+
+.emailSendActions p {
+  flex: 1 1 100%;
+  color: #f4d28a;
+  font-size: 12px;
+}
+
+.emailHistoryTable {
+  display: grid;
+}
+
+.emailHistoryTable article {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto minmax(160px, auto);
+  align-items: center;
+  gap: 14px;
+  padding: 12px 2px;
+  border-top: 1px solid #ffffff18;
+  font-size: 12px;
+}
+
+.emailHistoryTable span,
+.emailHistoryTable time {
+  color: #aab4bf;
+}
+
+@media (max-width: 900px) {
+  .emailComposerGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .adminInlineForm {
+    grid-template-columns: 1fr 140px;
+  }
+
+  .adminInlineForm button {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .networkExplorerShade {
+    background: linear-gradient(180deg, #111c29cc 0%, #111c2966 44%, #111c2920 100%);
+  }
+
+  .profileNetworkShade {
+    background: linear-gradient(180deg, #111c29f0 0%, #111c29d9 49%, #111c2963 100%);
+  }
+
+  .adminInvitationManager .searchForm {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .adminInvitationManager .searchForm select {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .systemNodePanel {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: calc(100% - 28px);
+    margin: 14px auto;
+  }
+
+  .adminInlineForm {
+    grid-template-columns: 1fr;
+  }
+
+  .adminInlineForm button {
+    grid-column: auto;
+  }
+
+  .adminCreditRequest {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .adminCreditRequest > div {
+    grid-column: 1 / -1;
+  }
+
+  .emailHistoryTable article {
+    grid-template-columns: 1fr auto;
+  }
+
+  .invitationLink > div {
+    flex-direction: column;
+  }
+}
