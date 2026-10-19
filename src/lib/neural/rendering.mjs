@@ -1,16 +1,16 @@
 export const NEURAL_RENDERING = Object.freeze({
   background: 0x111c29,
   backgroundCenter: 0x1a2b3b,
-  playerCore: 0xffffff,
-  playerGlow: 0xe5f4ff,
-  inactiveConnection: 0x607787,
-  activeConnection: 0x8ddcff,
+  playerCore: 0xf5fbff,
+  playerGlow: 0x9beaff,
+  inactiveConnection: 0x62a5ba,
+  activeConnection: 0x76e3ff,
   selectedNeuron: 0xb9f5ff,
   systemCore: 0xffffff,
   systemCyan: 0x55d9f5,
   systemMagenta: 0xe879f9,
   systemRadius: 1.92,
-  systemHaloRadius: 3.3,
+  systemGlowSize: 4.6,
 });
 
 export const SYSTEM_NODE = Object.freeze({

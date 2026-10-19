@@ -10,7 +10,7 @@ export const NEURAL_RENDERING: Readonly<{
   systemCyan: number;
   systemMagenta: number;
   systemRadius: number;
-  systemHaloRadius: number;
+  systemGlowSize: number;
 }>;
 
 export const SYSTEM_NODE: Readonly<{

@@ -6,8 +6,8 @@ import { initialNeuralView } from '../src/lib/neural/geometry.mjs';
 test('neural palette uses configured white player nodes and slate backgrounds', () => {
   assert.equal(NEURAL_RENDERING.background, 0x111c29);
   assert.equal(NEURAL_RENDERING.backgroundCenter, 0x1a2b3b);
-  assert.equal(NEURAL_RENDERING.playerCore, 0xffffff);
-  assert.equal(NEURAL_RENDERING.playerGlow, 0xe5f4ff);
+  assert.equal(NEURAL_RENDERING.playerCore, 0xf5fbff);
+  assert.equal(NEURAL_RENDERING.playerGlow, 0x9beaff);
 });
 
 test('system neuron is a distinct render-only entity at the origin', () => {

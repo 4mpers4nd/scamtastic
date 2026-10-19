@@ -37,6 +37,7 @@ export default function ProfileNeuralCanvas({
         connections={connections}
         selectedId={playerId}
         focusId={playerId}
+        focusScreenPosition={{ x: 2 / 3, y: 0.5 }}
         maxStrength={maxStrength}
         centralAvatar={{
           nodeId: playerId,

@@ -17,6 +17,10 @@ export function canonicalPlayerPair(playerA, playerB) {
 }
 
 export function connectionRadius(strength, maxStrength = 20) {
+  return 0.035 + connectionIntensity(strength, maxStrength) * 0.095;
+}
+
+export function connectionIntensity(strength, maxStrength = 20) {
   if (
     !Number.isFinite(strength) ||
     !Number.isFinite(maxStrength) ||
@@ -26,7 +30,29 @@ export function connectionRadius(strength, maxStrength = 20) {
     throw new RangeError('Connection strength and cap must be positive finite numbers.');
   }
 
-  return 0.035 + (Math.min(strength, maxStrength) / maxStrength) * 0.095;
+  return Math.min(strength, maxStrength) / maxStrength;
+}
+
+export function focusCameraOffset(distance, aspect, verticalFovDegrees, screenX, screenY) {
+  if (
+    ![distance, aspect, verticalFovDegrees, screenX, screenY].every(Number.isFinite) ||
+    distance <= 0 ||
+    aspect <= 0 ||
+    verticalFovDegrees <= 0 ||
+    verticalFovDegrees >= 180 ||
+    screenX < 0 ||
+    screenX > 1 ||
+    screenY < 0 ||
+    screenY > 1
+  ) {
+    throw new RangeError('Camera focus requires a valid viewport position and projection.');
+  }
+
+  const halfViewHeight = distance * Math.tan((verticalFovDegrees * Math.PI) / 360);
+  return {
+    x: (screenX * 2 - 1) * halfViewHeight * aspect,
+    y: (1 - screenY * 2) * halfViewHeight,
+  };
 }
 
 export function initialNeuralView(nodes, focusId = null) {

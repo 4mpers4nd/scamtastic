@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   canonicalPlayerPair,
+  connectionIntensity,
   connectionRadius,
+  focusCameraOffset,
   initialNeuralView,
 } from '../src/lib/neural/geometry.mjs';
 import { createFrameLoop } from '../src/lib/neural/frame-loop.mjs';
@@ -26,6 +28,34 @@ test('connection width respects the configured visual strength cap', () => {
   assert.equal(connectionRadius(20, 20), 0.13);
   assert.equal(connectionRadius(200, 20), 0.13);
   assert.throws(() => connectionRadius(0), RangeError);
+});
+
+test('connection visual intensity increases with strength and respects its cap', () => {
+  assert.equal(connectionIntensity(1, 20), 0.05);
+  assert.equal(connectionIntensity(10, 20), 0.5);
+  assert.equal(connectionIntensity(20, 20), 1);
+  assert.equal(connectionIntensity(200, 20), 1);
+});
+
+test('profile camera framing places the neuron at two-thirds width without moving it', () => {
+  const offset = focusCameraOffset(20, 16 / 9, 45, 2 / 3, 0.5);
+  assert.ok(offset.x > 0);
+  assert.equal(offset.y, 0);
+  const projectedNdcX = offset.x / (20 * Math.tan((45 * Math.PI) / 360) * (16 / 9));
+  assert.ok(Math.abs(projectedNdcX - 1 / 3) < 1e-12);
+});
+
+test('mobile profile framing centers the neuron horizontally below the profile panel', () => {
+  const offset = focusCameraOffset(20, 9 / 16, 45, 0.5, 0.74);
+  assert.equal(offset.x, 0);
+  assert.ok(offset.y < 0);
+  const projectedScreenY = 0.5 - offset.y / (2 * 20 * Math.tan((45 * Math.PI) / 360));
+  assert.ok(Math.abs(projectedScreenY - 0.74) < 1e-12);
+});
+
+test('camera focus offsets reject invalid projection and viewport values', () => {
+  assert.throws(() => focusCameraOffset(0, 1, 45, 0.5, 0.5), RangeError);
+  assert.throws(() => focusCameraOffset(20, 1, 45, 1.1, 0.5), RangeError);
 });
 
 test('a player cannot connect to itself or an invalid player identifier', () => {

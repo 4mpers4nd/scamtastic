@@ -57,9 +57,9 @@
 .neuralConnectionIdentity{min-width:0;display:grid;gap:4px}
 .neuralConnectionIdentity strong{font-size:12px}
 .neuralConnectionIdentity small{color:#a1abb5;font-size:10px}
-.profileExperience{position:relative;min-height:calc(100svh - 76px);overflow:hidden;background:#05070a}
+.profileExperience{position:relative;min-height:calc(100svh - 76px);overflow:hidden;background:#111c29}
 .profileNeuralCanvas{position:absolute;inset:0;z-index:0}
-.profileNetworkShade{position:absolute;z-index:1;inset:0;pointer-events:none;background:linear-gradient(90deg,#05070af5 0%,#05070ad9 32%,#05070a5c 54%,#05070a12 100%)}
+.profileNetworkShade{position:absolute;z-index:1;inset:0;pointer-events:none;background:linear-gradient(90deg,#111c29f5 0%,#111c29d9 32%,#111c295c 54%,#111c2912 100%)}
 .profileComposition{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));min-height:calc(100svh - 76px);padding:clamp(25px,5vh,56px) clamp(22px,5vw,72px);pointer-events:none}
 .profileThird{grid-column:1;width:min(100%,430px);align-self:center}
 .profileIdentity{display:grid;grid-template-columns:minmax(0,1fr) 108px;align-items:end;column-gap:0}
