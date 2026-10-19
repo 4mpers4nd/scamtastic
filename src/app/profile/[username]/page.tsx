@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import ProceduralAvatar from '@/components/ProceduralAvatar';
 import ProfileNeuralCanvas from '@/components/profile/ProfileNeuralCanvas';
+import ProfileFollowControls from '@/components/profile/ProfileFollowControls';
+import { parsePublicFollowData } from '@/lib/profile-follows.mjs';
 import { profileUsernameFromRouteParam } from '@/lib/profile-route.mjs';
 import { authenticatedUser } from '@/lib/server';
 import { parsePublicNeuralProfile, type NeuralSearchResult } from '@/lib/neural/types';
@@ -24,6 +26,14 @@ export default async function PublicProfilePage({
   if (error) throw error;
   const profile = parsePublicNeuralProfile(data);
   if (!profile) notFound();
+
+  const { data: followDataResult, error: followDataError } = await db.rpc(
+    'public_player_follow_data',
+    { p_username: profile.profile.username },
+  );
+  if (followDataError) throw followDataError;
+  const followData = parsePublicFollowData(followDataResult);
+  if (!followData) throw new Error('Public follow data returned an invalid shape');
 
   let isOwner = false;
   if (user) {
@@ -112,6 +122,12 @@ export default async function PublicProfilePage({
                   <span className="statusBadge">Administrator</span>
                 )}
               </div>
+              <ProfileFollowControls
+                username={profile.profile.username}
+                viewerIsAuthenticated={Boolean(user)}
+                isOwner={isOwner}
+                initialData={followData}
+              />
               <section className="profileBioSection" aria-labelledby="profile-bio-heading">
                 <h3 id="profile-bio-heading">// BIO</h3>
                 {profile.profile.bio ? (

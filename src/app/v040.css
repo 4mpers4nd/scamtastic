@@ -94,6 +94,56 @@
   margin: 18px 0 28px;
 }
 
+.profileFollowPanel {
+  display: grid;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid #ffffff20;
+  border-bottom: 1px solid #ffffff20;
+}
+
+.profileFollowLists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.profileFollowList {
+  min-width: 0;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.profileFollowList > summary {
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font-weight: 650;
+}
+
+.profileFollowList > summary:focus-visible,
+.profileFollowList a:focus-visible {
+  outline: 2px solid var(--color-violet);
+  outline-offset: 2px;
+}
+
+.profileFollowList ul {
+  display: grid;
+  gap: 5px;
+  max-height: 160px;
+  overflow-y: auto;
+  margin: 9px 0;
+  padding-left: 17px;
+}
+
+.profileFollowList a:hover {
+  color: var(--color-cyan);
+}
+
+.profileFollowPanel .error {
+  margin: 0;
+  font-size: 12px;
+}
+
 @media (max-width: 800px) {
   .headerPrimaryLinks,
   .headerGuestActions {
