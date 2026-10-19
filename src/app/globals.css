@@ -6,3 +6,6 @@
 .referralHistory{margin-top:9px}.referralHistory summary{cursor:pointer;color:#9ba8b8;font-size:11px}.referralHistory ul{padding-left:18px;color:#c3cfda;font-size:11px}
 .applicationSummary{cursor:pointer;list-style:none}.applicationSummary::-webkit-details-marker{display:none}.applicationSummary:focus-visible,.referralHistory summary:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:4px}.applicationDetails{padding-top:18px}
 .avatar{display:block;flex:none;object-fit:initial}.avatarReroll{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:18px}.largeAvatar{width:76px;height:76px;border:1px solid #395461;border-radius:18px}.avatarReroll p{color:#9ba8b8;font-size:13px;margin:0 0 12px}.avatarReroll .button{padding:11px 15px}.avatarMessage{flex-basis:100%;margin:0!important;color:#6ce6bd!important}.profileAvatar{display:block;object-fit:initial}
+.profileEdit{display:flex;width:max-content;margin:0 auto 8px}
+.profileNotFound h1{font-size:clamp(28px,5vw,38px);letter-spacing:-.05em;margin:16px 0}
+.profileNotFound .profileBio{margin:18px 0 24px}

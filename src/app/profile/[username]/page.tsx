@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import Header from '@/components/Header';
 import ProceduralAvatar from '@/components/ProceduralAvatar';
-import { supabaseServer } from '@/lib/server';
+import { authenticatedUser } from '@/lib/server';
+import { profileUsernameFromRouteParam } from '@/lib/profile-route.mjs';
 
 type PublicProfile = {
   username: string;
@@ -20,12 +22,27 @@ export default async function PublicProfilePage({
 }: {
   params: Promise<{ username: string }>;
 }) {
-  const { username } = await params;
-  const db = await supabaseServer();
+  const routeParams = await params;
+  const username = profileUsernameFromRouteParam(routeParams.username);
+  if (!username) notFound();
+
+  const { db, user } = await authenticatedUser();
   const { data, error } = await db.rpc('public_profile', { p_username: username });
   if (error) throw error;
   if (!data) notFound();
   const profile = data as PublicProfile;
+
+  let isOwner = false;
+  if (user) {
+    const { data: ownProfile, error: ownProfileError } = await db
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (ownProfileError) throw ownProfileError;
+    isOwner =
+      ownProfile?.username?.toLowerCase() === profile.username.toLowerCase();
+  }
 
   return (
     <>
@@ -46,7 +63,19 @@ export default async function PublicProfilePage({
             {profile.is_admin && <span className="statusBadge">Administrator</span>}
           </div>
           <p className="profileBio">{profile.bio || 'No public bio yet.'}</p>
+          {isOwner && (
+            <Link className="button secondary profileEdit" href="/settings">
+              Edit Profile
+            </Link>
+          )}
           <dl className="detailList">
+            <div>
+              <dt>Reputation</dt>
+              <dd>
+                {profile.referral_count}{' '}
+                {profile.referral_count === 1 ? 'referral' : 'referrals'}
+              </dd>
+            </div>
             <div>
               <dt>Joined</dt>
               <dd>
@@ -55,7 +84,6 @@ export default async function PublicProfilePage({
                 </time>
               </dd>
             </div>
-            <div><dt>Referrals</dt><dd>{profile.referral_count}</dd></div>
           </dl>
         </article>
       </main>

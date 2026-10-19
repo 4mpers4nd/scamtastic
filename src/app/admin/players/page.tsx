@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import { supabaseServer } from '@/lib/server';
 import { PlayerAccessForm, PlayerEditForm } from '@/components/AdminActionForms';
+import { profileHref } from '@/lib/profile-route.mjs';
 
 type Player = {
   id: string;
@@ -48,9 +50,9 @@ export default async function AdminPlayers({
                 <div>
                   <h2>{player.display_name || player.username}</h2>
                   <p>
-                    <a href={`/profile/${encodeURIComponent(player.username)}`}>
+                    <Link href={profileHref(player.username)}>
                       @{player.username}
-                    </a>
+                    </Link>
                   </p>
                 </div>
                 <div className="badgeGroup">
