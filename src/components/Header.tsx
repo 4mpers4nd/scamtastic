@@ -30,6 +30,9 @@ export default async function Header() {
     isAdmin = admin === true;
   }
 
+  const primaryLinks = user
+    ? [['Network', '/network'], ['Dashboard', '/game']]
+    : [['About', '/#about'], ['Network', '/network']];
   return (
     <header className="header">
       <Link className="brand" href="/">
@@ -39,17 +42,11 @@ export default async function Header() {
         </span>
       </Link>
       <nav className="headerNav" aria-label="Main navigation">
-        <Link href="/#about">About</Link>
-        <Link href="/network">Network</Link>
-        <Link href="/apply">Request Access</Link>
-        <details className="siteMenu">
-          <summary>Menu</summary>
-          <div className="accountDropdown">
-            <Link href="/#about">About</Link>
-            <Link href="/network">Player Network</Link>
-            <Link href="/apply">Request Access</Link>
-          </div>
-        </details>
+        <div className="headerPrimaryLinks">
+          {primaryLinks.map(([label, href]) => (
+            <Link key={href} href={href}>{label}</Link>
+          ))}
+        </div>
         {user ? (
           <HeaderAccount
             displayName={displayName}
@@ -59,10 +56,25 @@ export default async function Header() {
             isAdmin={isAdmin}
           />
         ) : (
-          <Link className="button secondary" href="/login">
-            Sign In ↗
-          </Link>
+          <div className="headerGuestActions">
+            <Link className="button primary" href="/apply">Request Access</Link>
+            <Link className="button secondary" href="/login">Log In</Link>
+          </div>
         )}
+        <details className="mobileNavigation">
+          <summary className="button secondary" aria-label="Open mobile navigation">Menu</summary>
+          <div className="mobileNavigationPanel">
+            {primaryLinks.map(([label, href]) => (
+              <Link key={href} href={href}>{label}</Link>
+            ))}
+            {!user && (
+              <>
+                <Link href="/apply">Request Access</Link>
+                <Link href="/login">Log In</Link>
+              </>
+            )}
+          </div>
+        </details>
       </nav>
     </header>
   );

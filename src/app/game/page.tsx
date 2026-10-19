@@ -57,8 +57,8 @@ export default async function Game() {
             <p>Coming soon.</p>
           </div>
           <div className="card">
-            <h3>SCAMCOINS</h3>
-            <p>Fixed supply economy in development.</p>
+            <h3>Bits</h3>
+            <p>Coming soon. Scamtastic’s fictional economy is under development.</p>
           </div>
         </div>
       </main>

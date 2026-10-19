@@ -1,4 +1,18 @@
 :root {
+  --color-background: #0d1117;
+  --color-surface: #161b22;
+  --color-surface-elevated: #21262d;
+  --color-cyan: #58dceb;
+  --color-violet: #a78bfa;
+  --color-purple: #8b5cf6;
+  --color-text-primary: #f0f6fc;
+  --color-text-secondary: #9198a1;
+  --color-border: #30363d;
+  --color-glitch-magenta: #f472b6;
+  --bg: var(--color-background);
+  --cyan: var(--color-cyan);
+  --pink: var(--color-glitch-magenta);
+  --line: var(--color-border);
   --neural-background: #111c29;
   --neural-background-center: #1a2b3b;
   --neural-player-core: #ffffff;
@@ -6,6 +20,106 @@
   --neural-connection-muted: #607787;
   --neural-connection-active: #8ddcff;
   --neural-selection: #b9f5ff;
+}
+
+.headerPrimaryLinks,
+.headerGuestActions {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 28px);
+}
+
+.headerPrimaryLinks a {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.headerPrimaryLinks a:hover {
+  color: var(--color-violet);
+}
+
+.mobileNavigation {
+  display: none;
+  position: relative;
+}
+
+.mobileNavigation > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.mobileNavigation > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mobileNavigationPanel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 10px);
+  right: 0;
+  display: grid;
+  gap: 4px;
+  min-width: 190px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  box-shadow: 0 16px 36px #0008;
+}
+
+.mobileNavigationPanel a {
+  padding: 11px;
+  border-radius: 5px;
+  color: var(--color-text-primary);
+  font-size: 13px;
+}
+
+.mobileNavigationPanel a:hover,
+.mobileNavigationPanel a:focus-visible {
+  background: var(--color-surface-elevated);
+  color: var(--color-violet);
+}
+
+.mobileNavigation:focus-within > summary,
+.mobileNavigationPanel a:focus-visible {
+  outline: 2px solid var(--color-violet);
+  outline-offset: 2px;
+}
+
+@media (max-width: 800px) {
+  .headerPrimaryLinks,
+  .headerGuestActions {
+    display: none;
+  }
+
+  .mobileNavigation {
+    display: block;
+  }
+
+  .headerNav {
+    gap: 10px;
+  }
+
+  .mobileNavigation > summary {
+    padding: 9px 12px;
+  }
+}
+
+.hero h1 {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: clamp(38px, 6.2vw, 95px);
+}
+
+@media (max-width: 800px) {
+  .hero h1 {
+    font-size: clamp(36px, 9vw, 65px);
+  }
+
+  .heroText {
+    max-width: 100%;
+  }
 }
 
 .hero {

@@ -102,7 +102,7 @@ export default function ApplicationForm({ referralCode, invitationCode }: Props)
         {busy ? 'Submitting…' : 'Submit request →'}
       </button>
       <p className="micro">
-        SCAMCOINS have no real-world value. This application does not create an account.
+        Bits are a fictional placeholder with no real-world value. This application does not create an account.
       </p>
     </form>
   );
