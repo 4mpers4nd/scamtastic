@@ -1,2 +1,20 @@
-import Link from 'next/link';import Header from '@/components/Header';
-export default function Apply(){return <><Header/><main className="formWrap"><div className="form"><div className="tag">// ACCESS REQUEST</div><h1>Request access.</h1><p>Scamtastic is invite-only. The application system is being prepared; we aren't collecting personal information until review and abuse protections are ready.</p><div className="status">APPLICATIONS OPENING SOON</div><Link href="/" className="button secondary wide">← Return to the network</Link></div></main></>}
+import Header from '@/components/Header';
+import ApplicationForm from '@/components/ApplicationForm';
+
+export default async function Apply({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const referralCode = Array.isArray(params.ref) ? params.ref[0] : params.ref;
+
+  return (
+    <>
+      <Header />
+      <main className="formWrap">
+        <ApplicationForm referralCode={referralCode ?? ''} />
+      </main>
+    </>
+  );
+}

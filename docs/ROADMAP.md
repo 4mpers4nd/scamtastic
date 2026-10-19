@@ -6,10 +6,12 @@
 - Protected player dashboard (requires profile and non-banned status)
 - Access request placeholder: applications are intentionally not collected until abuse protection and moderation are implemented
 
-## v0.1.1 — Applications and administration
-- Server-side rate-limited access application endpoint and CAPTCHA
-- Admin-only approval/rejection UI with audit log and secure invite emails
-- Referral tracking, profile onboarding and admin enforcement
+## v0.2.0 — Access and administration
+- Session-aware navigation, invite application submission, duplicate protection and rate limiting
+- Server-checked administration, application review, Supabase Auth activation, player moderation and audit views
+- Referral code creation, attribution and revocation
+- Public profiles, account settings and founder badge storage
+- Requires reviewed Supabase schema migration and environment/email setup before deployment
 
 ## v0.2 — Social economy
 - Fixed supply of SCAMCOINS, atomic double-entry ledger, treasury

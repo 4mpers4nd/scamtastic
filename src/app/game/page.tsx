@@ -12,7 +12,8 @@ export default async function Game() {
     error: authError,
   } = await db.auth.getUser();
 
-  if (authError || !user) redirect('/login');
+  if (authError) throw authError;
+  if (!user) redirect('/login');
 
   const { data: profile, error: profileError } = await db
     .from('profiles')

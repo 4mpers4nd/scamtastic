@@ -27,10 +27,11 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  const { error } = await supabase.auth.getUser();
+  if (error) throw error;
   return response;
 }
 
 export const config = {
-  matcher: ['/game/:path*'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
