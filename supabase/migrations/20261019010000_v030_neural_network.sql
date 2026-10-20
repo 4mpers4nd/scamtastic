@@ -111,66 +111,104 @@ declare
   v_node_count bigint;
   v_anchor_offset bigint;
   v_attempt integer;
+  v_position_found boolean := false;
 begin
   if p_player_id is null then
-    raise exception using errcode = '22023', message = 'Player ID is required';
+    raise exception using
+      errcode = '22023',
+      message = 'Player ID is required';
   end if;
 
   if not exists (
-    select 1 from public.profiles
-    where id = p_player_id and not is_banned
+    select 1
+    from public.profiles
+    where id = p_player_id
+      and not is_banned
   ) then
-    raise exception using errcode = 'P0002', message = 'Active player profile not found';
+    raise exception using
+      errcode = 'P0002',
+      message = 'Active player profile not found';
   end if;
-  if exists (select 1 from public.neural_nodes where player_id = p_player_id) then
+
+  if exists (
+    select 1
+    from public.neural_nodes
+    where player_id = p_player_id
+  ) then
     return false;
   end if;
 
-  perform pg_advisory_xact_lock(hashtextextended('scamtastic-neural-placement', 0));
-  if exists (select 1 from public.neural_nodes where player_id = p_player_id) then
+  perform pg_advisory_xact_lock(
+    hashtextextended('scamtastic-neural-placement', 0)
+  );
+
+  -- Recheck after acquiring the lock to avoid duplicate placement.
+  if exists (
+    select 1
+    from public.neural_nodes
+    where player_id = p_player_id
+  ) then
     return false;
   end if;
 
-  select count(*) into v_node_count from public.neural_nodes;
+  select count(*)
+  into v_node_count
+  from public.neural_nodes;
+
   if v_node_count > 0 then
     v_anchor_offset := floor(random() * v_node_count);
+
     select position_x, position_y, position_z
-      into v_anchor_x, v_anchor_y, v_anchor_z
-      from public.neural_nodes
-      order by created_at, player_id
-      offset v_anchor_offset
-      limit 1;
+    into v_anchor_x, v_anchor_y, v_anchor_z
+    from public.neural_nodes
+    order by created_at, player_id
+    offset v_anchor_offset
+    limit 1;
 
     for v_attempt in 1..96 loop
+      -- Reset the success state for every candidate.
+      v_position_found := false;
+      v_nearest := null;
+
       v_x := random() * 2 - 1;
       v_y := random() * 2 - 1;
       v_z := random() * 2 - 1;
-      v_length := sqrt(v_x * v_x + v_y * v_y + v_z * v_z);
+
+      v_length := sqrt(
+        v_x * v_x +
+        v_y * v_y +
+        v_z * v_z
+      );
+
       if v_length < 0.000001 then
         continue;
       end if;
 
       v_radius := 12 + random() * 18;
+
       v_x := v_anchor_x + v_x / v_length * v_radius;
       v_y := v_anchor_y + v_y / v_length * v_radius;
       v_z := v_anchor_z + v_z / v_length * v_radius;
 
       select min(sqrt(
-        power(position_x - v_x, 2)
-        + power(position_y - v_y, 2)
-        + power(position_z - v_z, 2)
+        power(position_x - v_x, 2) +
+        power(position_y - v_y, 2) +
+        power(position_z - v_z, 2)
       ))
       into v_nearest
       from public.neural_nodes;
 
       if v_nearest >= 8 and v_nearest <= 26 then
+        v_position_found := true;
         exit;
       end if;
     end loop;
 
-    if v_attempt > 96 or v_nearest is null or v_nearest < 8 or v_nearest > 26 then
-      raise exception using errcode = 'P0001',
-        message = 'Unable to find a well-spaced neural position; retry node creation';
+    if not v_position_found then
+      raise exception using
+        errcode = 'P0001',
+        message =
+          'Unable to find a well-spaced neural position; retry node creation';
     end if;
   else
     v_x := 0;
@@ -178,13 +216,23 @@ begin
     v_z := 0;
   end if;
 
-  insert into public.neural_nodes(player_id, position_x, position_y, position_z)
-  values (p_player_id, v_x, v_y, v_z)
+  insert into public.neural_nodes (
+    player_id,
+    position_x,
+    position_y,
+    position_z
+  )
+  values (
+    p_player_id,
+    v_x,
+    v_y,
+    v_z
+  )
   on conflict (player_id) do nothing;
+
   return found;
 end
 $$;
-
 create or replace function public.ensure_neural_node(p_player_id uuid)
 returns boolean
 language plpgsql
