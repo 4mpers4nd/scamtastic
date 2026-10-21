@@ -11,4 +11,11 @@ export type PublicFollowData = {
   following: PublicFollowMember[];
 };
 
+export type PublicFollowPage = {
+  count: number;
+  offset: number;
+  members: PublicFollowMember[];
+};
+
 export function parsePublicFollowData(value: unknown): PublicFollowData | null;
+export function parsePublicFollowPage(value: unknown): PublicFollowPage | null;

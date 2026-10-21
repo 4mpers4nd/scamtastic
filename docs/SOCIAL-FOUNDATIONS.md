@@ -1,6 +1,6 @@
 # Social foundations rollout
 
-The social migrations add directional follows and a read-only feed over existing gameplay-event data. The application does not apply database migrations automatically.
+The social migrations add directional follows, a read-only feed over existing gameplay-event data, and bounded dashboard/directory read functions. The application does not apply database migrations automatically.
 
 ## Development-only migration steps
 
@@ -13,11 +13,13 @@ Apply these migrations to the **`scamtastic_development` Supabase project only**
    - `supabase/migrations/20261019020000_v040_invitations.sql`
 3. Review and run the complete [`20261019030000_v041_social_follows.sql`](../supabase/migrations/20261019030000_v041_social_follows.sql) migration once in the development project's SQL Editor or the normal reviewed migration pipeline.
 4. Review and run the complete [`20261019040000_v042_followed_activity_feed.sql`](../supabase/migrations/20261019040000_v042_followed_activity_feed.sql) migration once, after v0.3 and v0.4 are present.
-5. Verify the table has RLS enabled and no direct privileges for `anon` or `authenticated`. Test follows as an active player, and confirm self-follow, banned accounts, and missing profiles are rejected. Repeating follow/unfollow requests should not create duplicate relationships.
-6. Verify that public follow data contains only active-player usernames and display names, with at most 20 list entries per direction. Confirm the activity function returns no more than 50 items from the previous 30 days and excludes invitation and transaction event types.
-7. Validate `/profile/[username]`, `/activity`, `/`, and `/dashboard` in a development deployment. Keep production migration and deployment separate pending independent review and approval.
+5. Review and run the complete [`20261019050000_v043_dashboard_and_directory.sql`](../supabase/migrations/20261019050000_v043_dashboard_and_directory.sql) migration once, after v0.4 is present.
+6. Verify the follow table has RLS enabled and no direct privileges for `anon` or `authenticated`. Test follows as an active player, and confirm self-follow, banned accounts, and missing profiles are rejected. Repeating follow/unfollow requests should not create duplicate relationships.
+7. Verify public follow data contains only active-player usernames and display names; the initial response and each continuation page contain at most 20 entries. Confirm the activity function returns no more than 50 items from the previous 30 days and excludes invitation and transaction event types.
+8. Verify the global dashboard totals and leaderboards against existing neural tables, and verify the admin player RPC returns only the requested database page and still requires administrator access.
+9. Validate `/profile/[username]`, `/activity`, `/`, `/dashboard`, and `/admin/players` in a development deployment. Keep production migration and deployment separate pending independent review and approval.
 
-Neither migration has been applied by this code change. Do not paste invitation codes, user emails, or secrets into SQL.
+These migrations must be applied manually after review. Do not apply them to production as part of this change. Do not paste invitation codes, user emails, or secrets into SQL.
 
 ## Data boundaries
 

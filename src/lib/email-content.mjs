@@ -5,12 +5,14 @@ const ALLOWED_TAGS = new Set([
 const VOID_TAGS = new Set(['br']);
 
 function escapeText(value) {
-  const decoded = value.replace(/&(#x[0-9a-f]{1,6}|#[0-9]{1,7}|amp|lt|gt|quot|apos);/gi, (entity, reference) => {
+  const decoded = value.replace(/&(#x[0-9a-f]{1,6}|#[0-9]{1,7}|amp|lt|gt|quot|apos|nbsp);/gi, (entity, reference) => {
     const normalized = reference.toLowerCase();
+    if (normalized === 'apos') return "'";
     if (normalized === 'amp') return '&';
     if (normalized === 'lt') return '<';
     if (normalized === 'gt') return '>';
     if (normalized === 'quot') return '"';
+    if (normalized === 'nbsp') return '\u00a0';
     if (normalized === 'apos') return "'";
     const codePoint = normalized.startsWith('#x')
       ? Number.parseInt(normalized.slice(2), 16)

@@ -69,7 +69,7 @@ export default async function PlayerCommandCenter({
   return (
     <>
       <Header />
-      <main className="commandCenter">
+      <main className="commandCenter personalDashboard">
         <div className="commandCenterHeading">
           <div className="tag">// NETWORK COMMAND CENTER</div>
           <h1>Welcome, {displayName}.</h1>

@@ -1,6 +1,7 @@
 import PlayerAccessNotice from '@/components/dashboard/PlayerAccessNotice';
-import PlayerCommandCenter from '@/components/dashboard/PlayerCommandCenter';
+import NetworkCommandCenter from '@/components/dashboard/NetworkCommandCenter';
 import PublicLanding from '@/components/dashboard/PublicLanding';
+import { parseNetworkDashboard } from '@/lib/network-dashboard.mjs';
 import { authenticatedUser } from '@/lib/server';
 
 export const dynamic = 'force-dynamic';
@@ -19,5 +20,10 @@ export default async function Home() {
     return <PlayerAccessNotice suspended={profile?.is_banned === true} />;
   }
 
-  return <PlayerCommandCenter profile={profile} />;
+  const { data, error: dashboardError } = await db.rpc('public_network_dashboard');
+  if (dashboardError) throw dashboardError;
+  const dashboard = parseNetworkDashboard(data);
+  if (!dashboard) throw new Error('Network command center data returned an invalid shape');
+
+  return <NetworkCommandCenter data={dashboard} />;
 }

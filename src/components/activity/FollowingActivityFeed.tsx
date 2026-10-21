@@ -59,7 +59,11 @@ export default async function FollowingActivityFeed() {
       </div>
       {items.length === 0 ? (
         <div className="adminPanel">
-          <p className="muted">No recent public activity from players you follow.</p>
+          <h3>No recent activity</h3>
+          <p className="muted">
+            This feed only includes eligible public gameplay moments from players you follow.
+            It can be empty when no matching activity has occurred in the last 30 days.
+          </p>
           <Link className="button secondary" href="/network">Explore the network</Link>
         </div>
       ) : (

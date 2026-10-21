@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+
 import { emailHtmlToText, sanitizeEmailHtml } from '@/lib/email-content.mjs';
 
 type EmailTemplate = {
@@ -27,7 +28,7 @@ async function request(path: string, init?: RequestInit): Promise<unknown> {
   if (!response.ok) {
     throw new Error(
       typeof data === 'object' && data !== null && 'error' in data &&
-      typeof data.error === 'string' ? data.error : 'Email request failed.',
+        typeof data.error === 'string' ? data.error : 'Email request failed.',
     );
   }
   return data;
@@ -48,6 +49,7 @@ export default function AdminEmailComposer() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const initialEditorHtml = useRef('<p></p>');
 
   const safeHtml = useMemo(() => sanitizeEmailHtml(html), [html]);
   const plainText = useMemo(() => emailHtmlToText(html), [html]);
@@ -67,10 +69,16 @@ export default function AdminEmailComposer() {
       setError(loadError instanceof Error ? loadError.message : 'Unable to load email tools.'),
     );
   }, []);
+  useEffect(() => {
+    if (preview === 'edit' && editorRef.current) {
+      editorRef.current.innerHTML = safeHtml || '<p></p>';
+    }
+    // Only initialize when entering Edit, not after every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preview]);
 
   function updateEditor(value: string) {
-    const sanitized = sanitizeEmailHtml(value);
-    setHtml(sanitized || '<p></p>');
+    setHtml(value || '<p></p>');
   }
 
   function command(commandName: string, value?: string) {
@@ -148,12 +156,34 @@ export default function AdminEmailComposer() {
     const template = resources?.templates.find((candidate) => candidate.id === id);
     if (!template) {
       setTemplateId('');
+      setTemplateName('');
+      setSubject('');
+
+      initialEditorHtml.current = '<p></p>';
+      setHtml('<p></p>');
+
+      if (editorRef.current) {
+        editorRef.current.innerHTML = '<p></p>';
+      }
+
+      setPreview('edit');
+      setConfirmation(false);
       return;
     }
     setTemplateId(template.id);
     setTemplateName(template.is_builtin ? `${template.name} (custom)` : template.name);
     setSubject(template.subject);
-    updateEditor(template.html_body);
+
+    const sanitized = sanitizeEmailHtml(template.html_body) || '<p></p>';
+
+    initialEditorHtml.current = sanitized;
+    setHtml(sanitized);
+
+    if (editorRef.current) {
+      editorRef.current.innerHTML = sanitized;
+    }
+
+    setPreview('edit');
     setConfirmation(false);
   }
 
@@ -257,9 +287,8 @@ export default function AdminEmailComposer() {
                   aria-multiline="true"
                   contentEditable
                   suppressContentEditableWarning
-                  dangerouslySetInnerHTML={{ __html: safeHtml }}
                   onInput={(event) => {
-                    updateEditor(event.currentTarget.innerHTML);
+                    setHtml(event.currentTarget.innerHTML || '<p></p>');
                     setConfirmation(false);
                   }}
                 />

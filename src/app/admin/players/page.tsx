@@ -1,14 +1,25 @@
 import Link from 'next/link';
+import ProceduralAvatar from '@/components/ProceduralAvatar';
 import { supabaseServer } from '@/lib/server';
 
 type Player = {
   id: string;
   username: string;
   display_name: string | null;
+  avatar_seed: string;
+  avatar_generator_version: number;
   is_banned: boolean;
   is_founder: boolean;
   is_admin: boolean;
   created_at: string;
+  invitation_credits: number;
+  invitation_count: number;
+  recruited_count: number;
+};
+
+type PlayerPage = {
+  players: Player[];
+  total: number;
 };
 
 const pageSize = 25;
@@ -26,12 +37,37 @@ export default async function AdminPlayers({
   const requestedPageNumber = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
   const db = await supabaseServer();
-  const { data, error } = await db.rpc('admin_list_players', { p_search: query });
+  const { data, error } = await db.rpc('admin_list_players_page', {
+    p_search: query,
+    p_limit: pageSize,
+    p_offset: Math.min((requestedPageNumber - 1) * pageSize, 1_000_000),
+  });
   if (error) throw error;
-  const players = (data ?? []) as Player[];
-  const pageCount = Math.max(1, Math.ceil(players.length / pageSize));
+  let result = data as PlayerPage | null;
+  if (
+    !result ||
+    !Array.isArray(result.players) ||
+    !Number.isSafeInteger(result.total) ||
+    result.total < 0
+  ) {
+    throw new Error('Admin player page returned an invalid shape');
+  }
+  let players = result.players;
+  const pageCount = Math.max(1, Math.ceil(result.total / pageSize));
   const page = Math.min(requestedPageNumber, pageCount);
-  const visiblePlayers = players.slice((page - 1) * pageSize, page * pageSize);
+  if ((page - 1) * pageSize !== Math.min((requestedPageNumber - 1) * pageSize, 1_000_000)) {
+    const corrected = await db.rpc('admin_list_players_page', {
+      p_search: query,
+      p_limit: pageSize,
+      p_offset: (page - 1) * pageSize,
+    });
+    if (corrected.error) throw corrected.error;
+    result = corrected.data as PlayerPage | null;
+    if (!result || !Array.isArray(result.players) || !Number.isSafeInteger(result.total)) {
+      throw new Error('Admin player page returned an invalid shape');
+    }
+    players = result.players;
+  }
 
   function pageHref(pageNumber: number) {
     const search = new URLSearchParams();
@@ -59,52 +95,45 @@ export default async function AdminPlayers({
         />
         <button className="button secondary">Search</button>
       </form>
-      {players.length === 0 ? (
+      {result.total === 0 ? (
         <p className="emptyState adminPanel">No players match this search.</p>
       ) : (
         <>
-          <div className="tableWrap">
-            <table className="adminTable">
-              <thead>
-                <tr>
-                  <th scope="col">Player</th>
-                  <th scope="col">Role</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Joined</th>
-                  <th scope="col"><span className="visuallyHidden">Details</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                {visiblePlayers.map((player) => (
-                  <tr key={player.id}>
-                    <th scope="row">
-                      {player.display_name || player.username}
-                      <div className="muted">@{player.username}</div>
-                    </th>
-                    <td>{player.is_admin ? 'Administrator' : player.is_founder ? 'Founder' : 'Player'}</td>
-                    <td>
-                      <span className={`statusBadge ${player.is_banned ? 'rejected' : 'approved'}`}>
-                        {player.is_banned ? 'Suspended' : 'Active'}
-                      </span>
-                    </td>
-                    <td>
-                      <time dateTime={player.created_at}>
-                        {new Date(player.created_at).toLocaleDateString()}
-                      </time>
-                    </td>
-                    <td>
-                      <Link className="button secondary" href={`/admin/players/${encodeURIComponent(player.id)}`}>
-                        Manage
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="adminPlayerRows" aria-label="Player directory">
+            {players.map((player) => (
+              <Link
+                className="adminPlayerRow"
+                href={`/admin/players/${encodeURIComponent(player.id)}`}
+                key={player.id}
+              >
+                <span className="adminPlayerIdentity">
+                  <ProceduralAvatar
+                    className="adminPlayerAvatar"
+                    seed={player.avatar_seed}
+                    version={player.avatar_generator_version}
+                    label=""
+                  />
+                  <span>
+                    <strong>{player.display_name || player.username}</strong>
+                    <span className="muted">@{player.username}</span>
+                  </span>
+                </span>
+                <span className="adminPlayerSummary">
+                  <span className={`statusBadge ${player.is_banned ? 'rejected' : 'approved'}`}>
+                    {player.is_banned ? 'Suspended' : 'Active'}
+                  </span>
+                  <span>{player.invitation_count} invites · {player.recruited_count} recruited</span>
+                  <span>{player.invitation_credits} available</span>
+                  <span className="muted">
+                    {player.is_admin ? 'Administrator' : player.is_founder ? 'Founder' : 'Player'}
+                  </span>
+                </span>
+              </Link>
+            ))}
           </div>
           <nav className="pagination" aria-label="Player directory pages">
             <span className="muted">
-              Page {page} of {pageCount} · {players.length} {players.length === 1 ? 'player' : 'players'}
+              Page {page} of {pageCount} · {result.total} {result.total === 1 ? 'player' : 'players'}
             </span>
             <div className="actionButtons">
               {page > 1 && <Link className="button secondary" href={pageHref(page - 1)}>Previous</Link>}
