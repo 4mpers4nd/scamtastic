@@ -71,8 +71,10 @@ export default function AdminEmailComposer() {
   }, []);
   useEffect(() => {
     if (preview === 'edit' && editorRef.current) {
-      editorRef.current.innerHTML = initialEditorHtml.current;
+      editorRef.current.innerHTML = safeHtml || '<p></p>';
     }
+    // Only initialize when entering Edit, not after every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preview]);
 
   function updateEditor(value: string) {
@@ -285,7 +287,6 @@ export default function AdminEmailComposer() {
                   aria-multiline="true"
                   contentEditable
                   suppressContentEditableWarning
-                  dangerouslySetInnerHTML={{ __html: initialEditorHtml.current }}
                   onInput={(event) => {
                     setHtml(event.currentTarget.innerHTML || '<p></p>');
                     setConfirmation(false);
