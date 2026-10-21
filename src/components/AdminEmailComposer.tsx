@@ -36,7 +36,6 @@ async function request(path: string, init?: RequestInit): Promise<unknown> {
 
 export default function AdminEmailComposer() {
   const editorRef = useRef<HTMLDivElement>(null);
-  const editorInitialized = useRef(false);
   const [resources, setResources] = useState<Resources | null>(null);
   const [search, setSearch] = useState('');
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
@@ -50,6 +49,7 @@ export default function AdminEmailComposer() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const initialEditorHtml = useRef('<p></p>');
 
   const safeHtml = useMemo(() => sanitizeEmailHtml(html), [html]);
   const plainText = useMemo(() => emailHtmlToText(html), [html]);
@@ -70,11 +70,10 @@ export default function AdminEmailComposer() {
     );
   }, []);
   useEffect(() => {
-    if (!editorInitialized.current && editorRef.current) {
-      editorRef.current.innerHTML = safeHtml || '<p></p>';
-      editorInitialized.current = true;
+    if (preview === 'edit' && editorRef.current) {
+      editorRef.current.innerHTML = initialEditorHtml.current;
     }
-  }, [safeHtml, preview]);
+  }, [preview]);
 
   function updateEditor(value: string) {
     setHtml(value || '<p></p>');
@@ -155,17 +154,31 @@ export default function AdminEmailComposer() {
     const template = resources?.templates.find((candidate) => candidate.id === id);
     if (!template) {
       setTemplateId('');
+      setTemplateName('');
+      setSubject('');
+
+      initialEditorHtml.current = '<p></p>';
+      setHtml('<p></p>');
+
+      if (editorRef.current) {
+        editorRef.current.innerHTML = '<p></p>';
+      }
+
+      setPreview('edit');
+      setConfirmation(false);
       return;
     }
     setTemplateId(template.id);
     setTemplateName(template.is_builtin ? `${template.name} (custom)` : template.name);
     setSubject(template.subject);
 
-    const sanitized = sanitizeEmailHtml(template.html_body);
-    setHtml(sanitized || '<p></p>');
+    const sanitized = sanitizeEmailHtml(template.html_body) || '<p></p>';
+
+    initialEditorHtml.current = sanitized;
+    setHtml(sanitized);
 
     if (editorRef.current) {
-      editorRef.current.innerHTML = sanitized || '<p></p>';
+      editorRef.current.innerHTML = sanitized;
     }
 
     setPreview('edit');
@@ -272,6 +285,7 @@ export default function AdminEmailComposer() {
                   aria-multiline="true"
                   contentEditable
                   suppressContentEditableWarning
+                  dangerouslySetInnerHTML={{ __html: initialEditorHtml.current }}
                   onInput={(event) => {
                     setHtml(event.currentTarget.innerHTML || '<p></p>');
                     setConfirmation(false);
