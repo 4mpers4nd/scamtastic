@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+
 import { emailHtmlToText, sanitizeEmailHtml } from '@/lib/email-content.mjs';
 
 type EmailTemplate = {
@@ -27,7 +28,7 @@ async function request(path: string, init?: RequestInit): Promise<unknown> {
   if (!response.ok) {
     throw new Error(
       typeof data === 'object' && data !== null && 'error' in data &&
-      typeof data.error === 'string' ? data.error : 'Email request failed.',
+        typeof data.error === 'string' ? data.error : 'Email request failed.',
     );
   }
   return data;
@@ -35,6 +36,7 @@ async function request(path: string, init?: RequestInit): Promise<unknown> {
 
 export default function AdminEmailComposer() {
   const editorRef = useRef<HTMLDivElement>(null);
+  const editorInitialized = useRef(false);
   const [resources, setResources] = useState<Resources | null>(null);
   const [search, setSearch] = useState('');
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
@@ -67,10 +69,15 @@ export default function AdminEmailComposer() {
       setError(loadError instanceof Error ? loadError.message : 'Unable to load email tools.'),
     );
   }, []);
+  useEffect(() => {
+    if (!editorInitialized.current && editorRef.current) {
+      editorRef.current.innerHTML = safeHtml || '<p></p>';
+      editorInitialized.current = true;
+    }
+  }, [safeHtml, preview]);
 
   function updateEditor(value: string) {
-    const sanitized = sanitizeEmailHtml(value);
-    setHtml(sanitized || '<p></p>');
+    setHtml(value || '<p></p>');
   }
 
   function command(commandName: string, value?: string) {
@@ -153,7 +160,15 @@ export default function AdminEmailComposer() {
     setTemplateId(template.id);
     setTemplateName(template.is_builtin ? `${template.name} (custom)` : template.name);
     setSubject(template.subject);
-    updateEditor(template.html_body);
+
+    const sanitized = sanitizeEmailHtml(template.html_body);
+    setHtml(sanitized || '<p></p>');
+
+    if (editorRef.current) {
+      editorRef.current.innerHTML = sanitized || '<p></p>';
+    }
+
+    setPreview('edit');
     setConfirmation(false);
   }
 
@@ -257,9 +272,8 @@ export default function AdminEmailComposer() {
                   aria-multiline="true"
                   contentEditable
                   suppressContentEditableWarning
-                  dangerouslySetInnerHTML={{ __html: safeHtml }}
                   onInput={(event) => {
-                    updateEditor(event.currentTarget.innerHTML);
+                    setHtml(event.currentTarget.innerHTML || '<p></p>');
                     setConfirmation(false);
                   }}
                 />
