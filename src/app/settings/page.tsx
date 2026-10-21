@@ -1,19 +1,10 @@
 import { redirect } from 'next/navigation';
-import { OwnProfileForm, OwnReferralForm, OwnReferralRevokeForm } from '@/components/AdminActionForms';
+import Link from 'next/link';
+import { OwnProfileForm } from '@/components/AdminActionForms';
 import AvatarReroll from '@/components/AvatarReroll';
-import CopyReferralLink from '@/components/CopyReferralLink';
 import Header from '@/components/Header';
 import { getAccessDecision } from '@/lib/auth-state.mjs';
 import { authenticatedUser } from '@/lib/server';
-
-type ReferralCode = {
-  id: string;
-  code: string;
-  usage_limit: number;
-  uses: number;
-  revoked_at: string | null;
-  created_at: string;
-};
 
 export const dynamic = 'force-dynamic';
 
@@ -28,14 +19,6 @@ export default async function Settings() {
     .eq('id', player.id)
     .maybeSingle();
   if (profileError) throw profileError;
-
-  let referrals: ReferralCode[] = [];
-  if (profile && !profile.is_banned) {
-    const { data: referralData, error: referralError } = await db.rpc('my_referral_codes');
-    if (referralError) throw referralError;
-    referrals = (referralData ?? []) as ReferralCode[];
-  }
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
 
   return (
     <>
@@ -82,29 +65,9 @@ export default async function Settings() {
           </div>
           <section className="adminPanel">
             <div className="tag">// INVITE NETWORK</div>
-            <h2>Your referral codes</h2>
-            <p>Codes are limited, revocable, and do not approve an application.</p>
-            {profile && !profile.is_banned && <OwnReferralForm />}
-            {referrals.length === 0 ? (
-              <p className="emptyState">No referral codes created.</p>
-            ) : (
-              <div className="referralList">
-                {referrals.map((referral) => {
-                  const link = `${siteUrl}/apply?ref=${encodeURIComponent(referral.code)}`;
-                  return (
-                    <article className="referralItem" key={referral.id}>
-                      <div>
-                        <code>{referral.code}</code>
-                        <span>{referral.uses} / {referral.usage_limit} uses</span>
-                        {referral.revoked_at && <span className="error">Revoked</span>}
-                      </div>
-                      {!referral.revoked_at && <CopyReferralLink href={link} />}
-                      {!referral.revoked_at && <OwnReferralRevokeForm id={referral.id} />}
-                    </article>
-                  );
-                })}
-              </div>
-            )}
+            <h2>Bring someone into the network.</h2>
+            <p>Review your available invites and manage invitations you have sent.</p>
+            <Link className="button secondary" href="/settings/invitations">Manage invites</Link>
           </section>
         </div>
       </main>

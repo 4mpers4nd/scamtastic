@@ -1,12 +1,9 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import {
-  createOwnReferral,
   reviewApplication,
-  revokeOwnReferral,
   retryActivation,
-  revokeReferral,
   setPlayerSuspended,
   updatePlayer,
   updateOwnProfile,
@@ -85,6 +82,50 @@ export function ActivationRetryForm({ id }: { id: string }) {
   );
 }
 
+export function TestEmailForm() {
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState<ActionResult>(null);
+
+  async function sendTestEmail() {
+    setPending(true);
+    setMessage(null);
+    try {
+      const response = await fetch('/api/admin/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const result: unknown = await response.json();
+      if (!response.ok) {
+        const error =
+          typeof result === 'object' &&
+          result !== null &&
+          'error' in result &&
+          typeof result.error === 'string'
+            ? result.error
+            : 'The test email could not be sent.';
+        throw new Error(error);
+      }
+      setMessage({ message: 'Test email sent to your verified administrator address.', error: false });
+    } catch (error) {
+      setMessage({
+        message: error instanceof Error ? error.message : 'The test email could not be sent.',
+        error: true,
+      });
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <div>
+      <button type="button" className="button secondary" onClick={sendTestEmail} disabled={pending}>
+        {pending ? 'Sending test email…' : 'Send test email to me'}
+      </button>
+      <Feedback state={message} />
+    </div>
+  );
+}
+
 export function PlayerAccessForm({
   id,
   suspended,
@@ -142,27 +183,6 @@ export function PlayerEditForm({
   );
 }
 
-export function ReferralRevokeForm({ id }: { id: string }) {
-  const [state, action, pending] = useActionState(revokeReferral, null);
-  return (
-    <form action={action}>
-      <input type="hidden" name="codeId" value={id} />
-      <button
-        className="button danger"
-        disabled={pending}
-        onClick={(event) => {
-          if (!window.confirm('Revoke this referral code? Existing links will stop working.')) {
-            event.preventDefault();
-          }
-        }}
-      >
-        {pending ? 'Revoking…' : 'Revoke'}
-      </button>
-      <Feedback state={state} />
-    </form>
-  );
-}
-
 export function OwnProfileForm({
   displayName,
   bio,
@@ -185,43 +205,6 @@ export function OwnProfileForm({
       <p className="muted">Your avatar is generated from a saved profile seed. Account credentials and username are not editable here.</p>
       <button className="button primary wide" disabled={pending}>
         {pending ? 'Saving…' : 'Save settings'}
-      </button>
-      <Feedback state={state} />
-    </form>
-  );
-}
-
-export function OwnReferralForm() {
-  const [state, action, pending] = useActionState(createOwnReferral, null);
-  return (
-    <form action={action} className="inlineForm">
-      <label>
-        Usage limit
-        <input type="number" name="usageLimit" min={1} max={100} defaultValue={5} required />
-      </label>
-      <button className="button secondary" disabled={pending}>
-        {pending ? 'Creating…' : 'Create referral code'}
-      </button>
-      <Feedback state={state} />
-    </form>
-  );
-}
-
-export function OwnReferralRevokeForm({ id }: { id: string }) {
-  const [state, action, pending] = useActionState(revokeOwnReferral, null);
-  return (
-    <form action={action}>
-      <input type="hidden" name="codeId" value={id} />
-      <button
-        className="button danger"
-        disabled={pending}
-        onClick={(event) => {
-          if (!window.confirm('Revoke this referral code? Existing links will stop working.')) {
-            event.preventDefault();
-          }
-        }}
-      >
-        {pending ? 'Revoking…' : 'Revoke'}
       </button>
       <Feedback state={state} />
     </form>

@@ -6,7 +6,6 @@ type Overview = {
   pending: number;
   approved: number;
   rejected: number;
-  referral_codes: number;
   recent_activity: Array<{
     action: string;
     target_type: string;
@@ -25,7 +24,6 @@ export default async function AdminOverview() {
     ['Pending applications', stats.pending, '/admin/applications?status=pending'],
     ['Approved applications', stats.approved, '/admin/applications?status=approved'],
     ['Rejected applications', stats.rejected, '/admin/applications?status=rejected'],
-    ['Referral codes', stats.referral_codes, '/admin/referrals'],
   ] as const;
 
   return (
@@ -33,7 +31,7 @@ export default async function AdminOverview() {
       <div className="adminPageHeading">
         <div className="tag">// ADMINISTRATION</div>
         <h1>System overview</h1>
-        <p>Live account, application, referral, and moderation activity.</p>
+        <p>Live account, application, and moderation activity.</p>
       </div>
       <section className="adminStats" aria-label="Current statistics">
         {values.map(([label, value, href]) => (

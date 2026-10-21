@@ -1,3 +1,5 @@
+import { TestEmailForm } from '@/components/AdminActionForms';
+
 export default function AdminSettings() {
   return (
     <>
@@ -14,6 +16,12 @@ export default function AdminSettings() {
           <code> EMAIL_FROM</code>, and <code>NEXT_PUBLIC_SITE_URL</code> before sending
           invitations.
         </p>
+        <p>
+          The test message is sent only to your verified administrator email. It does not
+          accept a recipient address and is limited to one send every five minutes per
+          administrator instance.
+        </p>
+        <TestEmailForm />
         <p>
           Do not paste secrets into this dashboard. Configure service credentials only in
           Vercel server-side environment variables.

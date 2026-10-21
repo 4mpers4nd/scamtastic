@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/server';
 
 function safeDestination(value: string | null) {
-  if (value === '/game' || value === '/settings' || value === '/activate') return value;
-  return '/game';
+  if (value === '/game') return '/dashboard';
+  if (value === '/dashboard' || value === '/settings' || value === '/activate') return value;
+  if (value && /^\/invite\/[a-f0-9]{64}$/.test(value)) return value;
+  return '/dashboard';
 }
 
 export async function GET(request: NextRequest) {
@@ -25,13 +27,21 @@ export async function GET(request: NextRequest) {
         });
         if (verifyError) throw verifyError;
       }
-      const { error: claimError } = await db.rpc('claim_approved_application');
-      if (claimError) throw claimError;
-      return NextResponse.redirect(
-        new URL(safeDestination(url.searchParams.get('next')), url.origin),
-      );
+      const destination = safeDestination(url.searchParams.get('next'));
+      if (!destination.startsWith('/invite/')) {
+        const { error: claimError } = await db.rpc('claim_approved_application');
+        if (claimError) throw claimError;
+      }
+      return NextResponse.redirect(new URL(destination, url.origin));
     } catch (error) {
-      console.error('Authentication callback failed:', error);
+      const code =
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        typeof error.code === 'string'
+          ? error.code
+          : 'unknown';
+      console.error('Authentication callback failed:', code);
     }
   }
 

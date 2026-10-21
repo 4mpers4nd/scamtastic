@@ -1,6 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
 import { supabaseService } from '@/lib/server';
+import { invitationCodeHash } from '@/lib/invitation-code.mjs';
 
 type ApplicationInput = {
   username?: unknown;
@@ -8,6 +9,7 @@ type ApplicationInput = {
   reason?: unknown;
   referralCode?: unknown;
   comments?: unknown;
+  invitationCode?: unknown;
 };
 
 function validString(value: unknown, min: number, max: number): value is string {
@@ -36,6 +38,9 @@ export async function POST(request: NextRequest) {
   const reason = input.reason;
   const referralCode = input.referralCode;
   const comments = input.comments;
+  const invitationCode = input.invitationCode;
+  const invitationHash =
+    typeof invitationCode === 'string' ? invitationCodeHash(invitationCode) : null;
 
   if (
     !validString(username, 3, 24) ||
@@ -47,6 +52,8 @@ export async function POST(request: NextRequest) {
       referralCode !== '' &&
       !validString(referralCode, 1, 64)) ||
     (comments !== undefined && comments !== '' && !validString(comments, 0, 2000))
+    || (invitationCode !== undefined && invitationCode !== '' &&
+      invitationHash === null)
   ) {
     return NextResponse.json(
       { error: 'Check the username, email, reason, and optional fields.' },
@@ -55,14 +62,6 @@ export async function POST(request: NextRequest) {
   }
 
   const pepper = process.env.APPLICATION_RATE_LIMIT_SECRET;
-
-  console.info('[Application configuration diagnostic]', {
-    variablePresent: pepper !== undefined,
-    variableLength: pepper?.length ?? 0,
-    vercelEnvironment: process.env.VERCEL_ENV ?? 'unknown',
-    vercelBranch: process.env.VERCEL_GIT_COMMIT_REF ?? 'unknown',
-    deploymentId: process.env.VERCEL_DEPLOYMENT_ID ?? 'unknown',
-  });
 
   if (!pepper || pepper.length < 32) {
     console.error('Application submissions are disabled: rate-limit secret is not configured.');
@@ -80,7 +79,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const db = supabaseService();
-    const { data, error } = await db.rpc('submit_scamtastic_application', {
+    const applicationArgs = {
       p_rate_key: rateKey,
       p_username: username.trim(),
       p_email: email.trim().toLowerCase(),
@@ -88,7 +87,13 @@ export async function POST(request: NextRequest) {
       p_referral_code:
         typeof referralCode === 'string' ? referralCode.trim().toUpperCase() || null : null,
       p_comments: typeof comments === 'string' ? comments.trim() || null : null,
-    });
+    };
+    const { data, error } = invitationHash
+      ? await db.rpc('submit_invited_application', {
+          ...applicationArgs,
+          p_invitation_hash: invitationHash,
+        })
+      : await db.rpc('submit_scamtastic_application', applicationArgs);
 
     if (error) {
       if (error.message.includes('Rate limit exceeded')) {
@@ -100,6 +105,12 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('Invalid referral code')) {
         return NextResponse.json(
           { error: 'That referral code is invalid, revoked, or fully used.' },
+          { status: 400 },
+        );
+      }
+      if (error.message.includes('invitation code')) {
+        return NextResponse.json(
+          { error: 'That player invitation is invalid or expired.' },
           { status: 400 },
         );
       }
@@ -122,7 +133,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (error) {
-    console.error('Application submission unavailable:', error);
+    console.error(
+      'Application submission unavailable:',
+      error instanceof Error ? error.name : 'Unknown error.',
+    );
     return NextResponse.json(
       { error: 'Unable to submit your request right now. Please try again later.' },
       { status: 503 },

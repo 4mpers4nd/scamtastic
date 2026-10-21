@@ -58,3 +58,33 @@ export function generateAvatarTiles(seed: string, version: number): AvatarTile[]
 
   return tiles;
 }
+
+export function avatarSvgDataUri(seed: string, version: number): string {
+  const tiles = generateAvatarTiles(seed, version);
+  const shapes = tiles.map((tile) => {
+    const center = tile.x + 3.25;
+    const yCenter = tile.y + 3.25;
+    const transform = `rotate(${tile.rotation} ${center} ${yCenter})`;
+
+    if (tile.shape === 'circle') {
+      return `<circle cx="${center}" cy="${yCenter}" r="3.1" fill="${tile.color}" transform="${transform}"/>`;
+    }
+    if (tile.shape === 'diamond') {
+      return `<path d="M${center} ${tile.y} L${tile.x + 6.5} ${yCenter} L${center} ${tile.y + 6.5} L${tile.x} ${yCenter} Z" fill="${tile.color}" transform="${transform}"/>`;
+    }
+    if (tile.shape === 'triangle') {
+      return `<path d="M${center} ${tile.y} L${tile.x + 6.5} ${tile.y + 6.5} L${tile.x} ${tile.y + 6.5} Z" fill="${tile.color}" transform="${transform}"/>`;
+    }
+    return `<rect x="${tile.x}" y="${tile.y}" width="6.5" height="6.5" rx="1.5" fill="${tile.color}" transform="${transform}"/>`;
+  }).join('');
+
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">` +
+    `<rect x="1" y="1" width="62" height="62" rx="15" fill="#111923" stroke="#2d3844"/>` +
+    `<path d="M9 18V9h9M46 9h9v9M9 46v9h9M55 46v9h-9" fill="none" stroke="#00d9ff" stroke-opacity=".45"/>` +
+    shapes +
+    `<circle cx="32" cy="32" r="3.4" fill="#ff2d95" stroke="#111923" stroke-width="1.5"/>` +
+    `</svg>`;
+
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}

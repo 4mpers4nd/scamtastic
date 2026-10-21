@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ProceduralAvatar from '@/components/ProceduralAvatar';
 import { supabaseBrowser } from '@/lib/supabase';
+import { profileHref } from '@/lib/profile-route.mjs';
 
 type Props = {
   displayName: string | null;
@@ -25,7 +26,7 @@ export default function HeaderAccount({
   const [busy, setBusy] = useState(false);
   const router = useRouter();
   const label = displayName || username || 'Account';
-  const profileHref = username ? `/profile/${encodeURIComponent(username)}` : '/settings';
+  const profileLink = username ? profileHref(username) : '/settings';
 
   async function signOut() {
     setBusy(true);
@@ -60,9 +61,9 @@ export default function HeaderAccount({
         <span aria-hidden="true">⌄</span>
       </summary>
       <div className="accountDropdown">
-        {username && <Link href={profileHref}>My Profile</Link>}
-        <Link href="/game">Game Dashboard</Link>
+        {username && <Link href={profileLink}>My Profile</Link>}
         <Link href="/settings">Account Settings</Link>
+        {username && <Link href="/settings/invitations">Invites</Link>}
         {isAdmin && <Link href="/admin">Administration</Link>}
         <button type="button" onClick={signOut} disabled={busy}>
           {busy ? 'Signing out…' : 'Sign Out'}

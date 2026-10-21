@@ -1,4 +1,60 @@
 'use client';
-import {useEffect,useRef} from 'react';
-type Point={x:number;y:number;z:number};
-export default function Network(){const ref=useRef<HTMLCanvasElement>(null);useEffect(()=>{const canvas=ref.current;if(!canvas)return;const ctx=canvas.getContext('2d');if(!ctx)return;let raf=0;let w=0,h=0,dpr=1,rot=0,drag=false,lastX=0;const points:Point[]=Array.from({length:95},(_,i)=>{const a=i*2.39996,r=Math.sqrt((i+.5)/95)*260;return{x:Math.cos(a)*r,y:(i*47%100-50)*4.5,z:Math.sin(a)*r}});const edges:[number,number][]=[];for(let i=0;i<points.length;i++){const nearest=points.map((p,j)=>({j,d:(p.x-points[i].x)**2+(p.y-points[i].y)**2+(p.z-points[i].z)**2})).filter(p=>p.j!==i).sort((a,b)=>a.d-b.d).slice(0,3);for(const n of nearest)if(i<n.j)edges.push([i,n.j])}function resize(){w=canvas!.clientWidth;h=canvas!.clientHeight;dpr=Math.min(devicePixelRatio||1,2);canvas!.width=w*dpr;canvas!.height=h*dpr;ctx!.setTransform(dpr,0,0,dpr,0,0)}resize();const obs=new ResizeObserver(resize);obs.observe(canvas);function draw(t:number){ctx!.clearRect(0,0,w,h);if(!drag)rot+=.0018;const projected=points.map(p=>{const x=p.x*Math.cos(rot)-p.z*Math.sin(rot),z=p.x*Math.sin(rot)+p.z*Math.cos(rot),s=600/(600+z);return{x:w*.61+x*s,y:h*.52+p.y*s,z,s}});for(const [a,b] of edges){const p=projected[a],q=projected[b];ctx!.beginPath();ctx!.moveTo(p.x,p.y);ctx!.lineTo(q.x,q.y);ctx!.strokeStyle=`rgba(0,217,255,${Math.max(.04,.19-(p.z+q.z)/3500)})`;ctx!.lineWidth=.8;ctx!.stroke();if((a+b)%6===0){const u=((t*.00015+(a*13+b*7)*.13)%1);ctx!.beginPath();ctx!.arc(p.x+(q.x-p.x)*u,p.y+(q.y-p.y)*u,1.7,0,Math.PI*2);ctx!.fillStyle='#00d9ff';ctx!.fill()}}projected.forEach((p,i)=>{ctx!.beginPath();ctx!.arc(p.x,p.y,i%13===0?3.5:1.8,0,Math.PI*2);ctx!.fillStyle=i%13===0?'#ff2d95':'#79e6f7';ctx!.fill()});raf=requestAnimationFrame(draw)}raf=requestAnimationFrame(draw);function down(e:PointerEvent){drag=true;lastX=e.clientX;canvas!.setPointerCapture(e.pointerId)}function move(e:PointerEvent){if(drag){rot+=(e.clientX-lastX)*.006;lastX=e.clientX}}function up(){drag=false}canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);return()=>{cancelAnimationFrame(raf);obs.disconnect();canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up)}},[]);return <canvas ref={ref} className="network" aria-label="Interactive rotating network visualization"/>}
+
+import { useEffect, useState } from 'react';
+import NeuralCanvas from '@/components/neural/NeuralCanvas';
+import SystemNodePanel from '@/components/neural/SystemNodePanel';
+import { parseNeuralSnapshot, type NeuralSnapshot } from '@/lib/neural/types';
+
+export default function Network() {
+  const [snapshot, setSnapshot] = useState<NeuralSnapshot | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
+  const [systemSelected, setSystemSelected] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadNetwork() {
+      try {
+        const response = await fetch('/api/network?limit=150', {
+          signal: controller.signal,
+          cache: 'no-store',
+        });
+        if (!response.ok) throw new Error('Network request failed');
+        const data = parseNeuralSnapshot(await response.json());
+        if (!data) throw new Error('Network data was invalid');
+        setSnapshot(data);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        console.error('Homepage neural network unavailable:', error);
+        setUnavailable(true);
+      }
+    }
+
+    void loadNetwork();
+    return () => controller.abort();
+  }, []);
+
+  if (unavailable) {
+    return (
+      <div className="networkUnavailable" role="status">
+        The player network is temporarily unavailable.
+      </div>
+    );
+  }
+  if (!snapshot) {
+    return <div className="networkLoading" aria-hidden="true" />;
+  }
+
+  return (
+    <>
+      <NeuralCanvas
+        className="networkHeroCanvas"
+        nodes={snapshot.nodes}
+        connections={snapshot.connections}
+        autoRotate
+        onSystemSelect={() => setSystemSelected((selected) => !selected)}
+      />
+      {systemSelected && <SystemNodePanel onClose={() => setSystemSelected(false)} />}
+    </>
+  );
+}

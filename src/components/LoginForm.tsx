@@ -30,7 +30,7 @@ export default function LoginForm() {
         password,
       });
       if (signInError) throw signInError;
-      window.location.href = '/game';
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to sign in');
     } finally {

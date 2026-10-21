@@ -5,7 +5,8 @@ const links = [
   ['Overview', '/admin'],
   ['Applications', '/admin/applications'],
   ['Players', '/admin/players'],
-  ['Referrals', '/admin/referrals'],
+  ['Invitations', '/admin/invitations'],
+  ['Email Composer', '/admin/email'],
   ['Audit Logs', '/admin/audit-logs'],
   ['Settings', '/admin/settings'],
 ] as const;

@@ -3,9 +3,9 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 
-type Props = { referralCode: string };
+type Props = { referralCode: string; invitationCode: string };
 
-export default function ApplicationForm({ referralCode }: Props) {
+export default function ApplicationForm({ referralCode, invitationCode }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -25,6 +25,7 @@ export default function ApplicationForm({ referralCode }: Props) {
           email: form.get('email'),
           reason: form.get('reason'),
           referralCode: form.get('referralCode'),
+          invitationCode,
           comments: form.get('comments'),
         }),
       });
@@ -59,7 +60,11 @@ export default function ApplicationForm({ referralCode }: Props) {
     <form className="form" onSubmit={submit}>
       <div className="tag">// ACCESS REQUEST</div>
       <h1>Request access.</h1>
-      <p>Applications are reviewed by a human. Access is not automatic.</p>
+      <p>
+        {invitationCode
+          ? 'A member invited you to apply. Every player invitation still requires administrator approval.'
+          : 'Applications are reviewed by a human. Access is not automatic.'}
+      </p>
       <label>
         Desired username
         <input
@@ -97,7 +102,7 @@ export default function ApplicationForm({ referralCode }: Props) {
         {busy ? 'Submitting…' : 'Submit request →'}
       </button>
       <p className="micro">
-        SCAMCOINS have no real-world value. This application does not create an account.
+        Bits are a fictional placeholder with no real-world value. This application does not create an account.
       </p>
     </form>
   );

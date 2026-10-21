@@ -232,6 +232,67 @@ create table if not exists public.referrals (
   referred_at timestamptz not null default now()
 );
 
+-- Reconcile the existing referral schema without replacing historical rows.
+-- The referred account may not exist until an approved application is claimed.
+alter table public.referrals
+  add column if not exists referrer_id uuid,
+  add column if not exists referred_id uuid;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.referrals'::regclass
+      and conname = 'referrals_referrer_id_fkey'
+  ) then
+    alter table public.referrals
+      add constraint referrals_referrer_id_fkey
+      foreign key (referrer_id) references auth.users(id);
+  end if;
+
+  if not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.referrals'::regclass
+      and conname = 'referrals_referred_id_fkey'
+  ) then
+    alter table public.referrals
+      add constraint referrals_referred_id_fkey
+      foreign key (referred_id) references auth.users(id);
+  end if;
+end
+$$;
+
+-- Backfill missing referrer IDs without overwriting existing attribution.
+-- to_jsonb() lets this work with schemas that do or do not have owner_id.
+update public.referrals r
+set referrer_id = coalesce(
+  rc.creator_id,
+  nullif(to_jsonb(rc)->>'owner_id', '')::uuid
+)
+from public.referral_codes rc
+where rc.id = r.referral_code_id
+  and r.referrer_id is null;
+
+-- Stop rather than silently discard or misattribute unresolvable history.
+do $$
+begin
+  if exists (
+    select 1
+    from public.referrals
+    where referrer_id is null
+  ) then
+    raise exception
+      'Existing referrals have no resolvable referrer; review them before migrating';
+  end if;
+end
+$$;
+
+alter table public.referrals
+  alter column referrer_id set not null,
+  alter column referred_id drop not null;
+
 create table if not exists public.admin_audit_logs (
   id bigint generated always as identity primary key,
   admin_id uuid not null references auth.users(id),
@@ -410,9 +471,22 @@ begin
     raise;
   end;
 
-  if v_referral.id is not null then
-    insert into public.referrals(application_id, referral_code_id)
-      values (v_application_id, v_referral.id);
+    if v_referral.id is not null then
+    insert into public.referrals (
+      application_id,
+      referral_code_id,
+      referrer_id,
+      referred_id
+    )
+    values (
+      v_application_id,
+      v_referral.id,
+      coalesce(
+        v_referral.creator_id,
+        nullif(to_jsonb(v_referral)->>'owner_id', '')::uuid
+      ),
+      null
+    );
   end if;
   return 'received';
 end
@@ -866,8 +940,16 @@ begin
     insert into public.profiles(id, username, display_name, bio, is_banned, created_at)
       values (v_user, v_app.username, v_app.username, '', false, now());
   end if;
+    -- Complete referral attribution once the applicant has an auth.users account.
+  -- Only fill missing attribution; never overwrite an existing referred user.
+  update public.referrals
+    set referred_id = v_user
+    where application_id = v_app.id
+      and referred_id is null;
+
   update public.applications set activation_status = 'claimed'
     where id = v_app.id and activation_status <> 'claimed';
+
   return true;
 end
 $$;
