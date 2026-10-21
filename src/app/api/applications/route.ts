@@ -2,12 +2,12 @@ import { createHmac } from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
 import { supabaseService } from '@/lib/server';
 import { invitationCodeHash } from '@/lib/invitation-code.mjs';
+import { applicationRpcCall } from '@/lib/application-submission.mjs';
 
 type ApplicationInput = {
   username?: unknown;
   email?: unknown;
   reason?: unknown;
-  referralCode?: unknown;
   comments?: unknown;
   invitationCode?: unknown;
 };
@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
   const username = input.username;
   const email = input.email;
   const reason = input.reason;
-  const referralCode = input.referralCode;
   const comments = input.comments;
   const invitationCode = input.invitationCode;
   const invitationHash =
@@ -48,9 +47,6 @@ export async function POST(request: NextRequest) {
     !validString(email, 3, 254) ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
     !validString(reason, 10, 2000) ||
-    (referralCode !== undefined &&
-      referralCode !== '' &&
-      !validString(referralCode, 1, 64)) ||
     (comments !== undefined && comments !== '' && !validString(comments, 0, 2000))
     || (invitationCode !== undefined && invitationCode !== '' &&
       invitationHash === null)
@@ -79,33 +75,24 @@ export async function POST(request: NextRequest) {
 
   try {
     const db = supabaseService();
-    const applicationArgs = {
-      p_rate_key: rateKey,
-      p_username: username.trim(),
-      p_email: email.trim().toLowerCase(),
-      p_reason: reason.trim(),
-      p_referral_code:
-        typeof referralCode === 'string' ? referralCode.trim().toUpperCase() || null : null,
-      p_comments: typeof comments === 'string' ? comments.trim() || null : null,
-    };
-    const { data, error } = invitationHash
-      ? await db.rpc('submit_invited_application', {
-          ...applicationArgs,
-          p_invitation_hash: invitationHash,
-        })
-      : await db.rpc('submit_scamtastic_application', applicationArgs);
+    const rpcCall = applicationRpcCall({
+      rateKey,
+      username: username.trim(),
+      email: email.trim().toLowerCase(),
+      reason: reason.trim(),
+      invitationHash,
+      comments: typeof comments === 'string' ? comments.trim() || null : null,
+    });
+    const { data, error } =
+      rpcCall.functionName === 'submit_invited_application'
+        ? await db.rpc('submit_invited_application', rpcCall.args)
+        : await db.rpc('submit_scamtastic_application', rpcCall.args);
 
     if (error) {
       if (error.message.includes('Rate limit exceeded')) {
         return NextResponse.json(
           { error: 'Too many requests. Please wait before trying again.' },
           { status: 429 },
-        );
-      }
-      if (error.message.includes('Invalid referral code')) {
-        return NextResponse.json(
-          { error: 'That referral code is invalid, revoked, or fully used.' },
-          { status: 400 },
         );
       }
       if (error.message.includes('invitation code')) {

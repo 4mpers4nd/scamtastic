@@ -2,10 +2,11 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import { applicationFormPayload } from '@/lib/application-submission.mjs';
 
-type Props = { referralCode: string; invitationCode: string };
+type Props = { invitationCode: string };
 
-export default function ApplicationForm({ referralCode, invitationCode }: Props) {
+export default function ApplicationForm({ invitationCode }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -20,14 +21,13 @@ export default function ApplicationForm({ referralCode, invitationCode }: Props)
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: JSON.stringify(applicationFormPayload({
           username: form.get('username'),
           email: form.get('email'),
           reason: form.get('reason'),
-          referralCode: form.get('referralCode'),
           invitationCode,
           comments: form.get('comments'),
-        }),
+        })),
       });
       const result: { error?: string } = await response.json();
       if (!response.ok) throw new Error(result.error || 'Unable to submit application.');
@@ -84,10 +84,6 @@ export default function ApplicationForm({ referralCode, invitationCode }: Props)
       <label>
         Why would you like to join?
         <textarea required name="reason" minLength={10} maxLength={2000} rows={5} />
-      </label>
-      <label>
-        Referral code <span className="muted">(optional)</span>
-        <input name="referralCode" maxLength={64} defaultValue={referralCode} />
       </label>
       <label>
         Additional comments <span className="muted">(optional)</span>

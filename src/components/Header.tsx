@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { authenticatedUser } from '@/lib/server';
 import HeaderAccount from '@/components/HeaderAccount';
+import HeaderPrimaryNavigation, {
+  type NavigationLink,
+} from '@/components/HeaderPrimaryNavigation';
 
 export default async function Header() {
   const { db, user } = await authenticatedUser();
@@ -30,9 +33,9 @@ export default async function Header() {
     isAdmin = admin === true;
   }
 
-  const primaryLinks = user
-    ? [['Network', '/network'], ['Activity', '/activity'], ['Dashboard', '/dashboard']]
-    : [['About', '/#about'], ['Network', '/network']];
+  const primaryLinks: NavigationLink[] = user
+    ? [['Network', '/network'], ['Marketplace', '/marketplace'], ['Activity', '/activity'], ['Dashboard', '/dashboard']]
+    : [['About', '/#about'], ['Network', '/network'], ['Marketplace', '/marketplace']];
   return (
     <header className="header">
       <Link className="brand" href="/">
@@ -43,9 +46,7 @@ export default async function Header() {
       </Link>
       <nav className="headerNav" aria-label="Main navigation">
         <div className="headerPrimaryLinks">
-          {primaryLinks.map(([label, href]) => (
-            <Link key={href} href={href}>{label}</Link>
-          ))}
+          <HeaderPrimaryNavigation links={primaryLinks} />
         </div>
         {user ? (
           <HeaderAccount
@@ -64,9 +65,7 @@ export default async function Header() {
         <details className="mobileNavigation">
           <summary className="button secondary" aria-label="Open mobile navigation">Menu</summary>
           <div className="mobileNavigationPanel">
-            {primaryLinks.map(([label, href]) => (
-              <Link key={href} href={href}>{label}</Link>
-            ))}
+            <HeaderPrimaryNavigation links={primaryLinks} />
             {!user && (
               <>
                 <Link href="/apply">Request Access</Link>

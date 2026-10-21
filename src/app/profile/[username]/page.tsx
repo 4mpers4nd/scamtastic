@@ -4,19 +4,28 @@ import Header from '@/components/Header';
 import ProceduralAvatar from '@/components/ProceduralAvatar';
 import ProfileNeuralCanvas from '@/components/profile/ProfileNeuralCanvas';
 import ProfileFollowControls from '@/components/profile/ProfileFollowControls';
+import ProductBrowser from '@/components/storefront/ProductBrowser';
 import { parsePublicFollowData } from '@/lib/profile-follows.mjs';
-import { profileUsernameFromRouteParam } from '@/lib/profile-route.mjs';
+import { profileHref, profileUsernameFromRouteParam } from '@/lib/profile-route.mjs';
+import { validProductId } from '@/lib/storefront-links.mjs';
+import { emptyPublishedProducts } from '@/lib/storefront';
 import { authenticatedUser } from '@/lib/server';
 import { parsePublicNeuralProfile, type NeuralSearchResult } from '@/lib/neural/types';
 
 export default async function PublicProfilePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ username: string }>;
+  searchParams: Promise<{ tab?: string | string[]; product?: string | string[] }>;
 }) {
   const routeParams = await params;
+  const query = await searchParams;
   const username = profileUsernameFromRouteParam(routeParams.username);
   if (!username) notFound();
+  const rawProductId = Array.isArray(query.product) ? query.product[0] : query.product;
+  const productId = validProductId(rawProductId);
+  const isStoreView = query.tab === 'store' || productId !== null;
 
   const { db, user } = await authenticatedUser();
   const { data, error } = await db.rpc('public_neural_profile', {
@@ -93,85 +102,115 @@ export default async function PublicProfilePage({
           </div>
         )}
         <div className="profileNetworkShade" aria-hidden="true" />
-        <section className="profileComposition">
-          <div className="profileThird">
-            <div className="profileIdentity">
-              <div className="profileIdentityText">
-                <h1>{profile.profile.username}</h1>
-                <span className="profileIdentityLine" aria-hidden="true" />
-                <p>@{profile.profile.username}</p>
-              </div>
-              <div className="profileAvatarFrame">
-                <ProceduralAvatar
-                  className="profileAvatar"
-                  seed={profile.profile.avatar_seed}
-                  version={profile.profile.avatar_generator_version}
-                  label={`${profile.profile.username} avatar`}
-                />
-              </div>
-            </div>
-
-            <article className="profileInformationPanel">
-              <div className="tag">// PLAYER PROFILE</div>
-              <h2>{profile.profile.display_name || profile.profile.username}</h2>
-              <div className="badgeGroup profileBadges">
-                {profile.profile.is_founder && (
-                  <span className="statusBadge approved">Founder</span>
-                )}
-                {profile.profile.is_admin && (
-                  <span className="statusBadge">Administrator</span>
-                )}
-              </div>
-              <ProfileFollowControls
-                username={profile.profile.username}
-                viewerIsAuthenticated={Boolean(user)}
-                isOwner={isOwner}
-                initialData={followData}
+        <section className={`profileComposition${isStoreView ? ' profileStoreComposition' : ''}`}>
+          <nav className="profileSectionTabs" aria-label="Profile sections">
+            <Link
+              aria-current={!isStoreView ? 'page' : undefined}
+              href={`${profileHref(profile.profile.username)}?tab=profile`}
+            >
+              Profile
+            </Link>
+            <Link
+              aria-current={isStoreView ? 'page' : undefined}
+              href={`${profileHref(profile.profile.username)}?tab=store`}
+            >
+              Store
+            </Link>
+          </nav>
+          {isStoreView ? (
+            <section className="profileStoreSection">
+              <div className="tag">// CREATOR STOREFRONT</div>
+              <h1>{profile.profile.display_name || profile.profile.username}</h1>
+              <p className="muted">Published creations by @{profile.profile.username}</p>
+              <ProductBrowser
+                products={emptyPublishedProducts}
+                mode="profile"
+                initialProductId={productId}
+                profileUsername={profile.profile.username}
               />
-              <section className="profileBioSection" aria-labelledby="profile-bio-heading">
-                <h3 id="profile-bio-heading">// BIO</h3>
-                {profile.profile.bio ? (
-                  <p className="profileBiography">{profile.profile.bio}</p>
-                ) : (
-                  <p className="profileBiographyEmpty">No public bio yet.</p>
+            </section>
+          ) : (
+            <div className="profileThird">
+              <div className="profileIdentity">
+                <div className="profileIdentityText">
+                  <h1>{profile.profile.username}</h1>
+                  <span className="profileIdentityLine" aria-hidden="true" />
+                  <p>@{profile.profile.username}</p>
+                </div>
+                <div className="profileAvatarFrame">
+                  <ProceduralAvatar
+                    className="profileAvatar"
+                    seed={profile.profile.avatar_seed}
+                    version={profile.profile.avatar_generator_version}
+                    label={`${profile.profile.username} avatar`}
+                  />
+                </div>
+              </div>
+
+              <article className="profileInformationPanel">
+                <div className="tag">// PLAYER PROFILE</div>
+                <h2>{profile.profile.display_name || profile.profile.username}</h2>
+                <div className="badgeGroup profileBadges">
+                  {profile.profile.is_founder && (
+                    <span className="statusBadge approved">Founder</span>
+                  )}
+                  {profile.profile.is_admin && (
+                    <span className="statusBadge">Administrator</span>
+                  )}
+                </div>
+                <ProfileFollowControls
+                  username={profile.profile.username}
+                  viewerIsAuthenticated={Boolean(user)}
+                  isOwner={isOwner}
+                  initialData={followData}
+                />
+                <section className="profileBioSection" aria-labelledby="profile-bio-heading">
+                  <h3 id="profile-bio-heading">// BIO</h3>
+                  {profile.profile.bio ? (
+                    <p className="profileBiography">{profile.profile.bio}</p>
+                  ) : (
+                    <p className="profileBiographyEmpty">No public bio yet.</p>
+                  )}
+                </section>
+                <section className="profileStatistics" aria-labelledby="profile-stats-heading">
+                  <h3 id="profile-stats-heading">// NETWORK RECORD</h3>
+                  <dl>
+                    <div>
+                      <dt>Connections</dt>
+                      <dd>{profile.connectionCount}</dd>
+                    </div>
+                    <div>
+                      <dt>Interactions</dt>
+                      <dd>{profile.interactionCount}</dd>
+                    </div>
+                    <div>
+                      <dt>Joined</dt>
+                      <dd>
+                        <time dateTime={profile.profile.created_at}>
+                          {new Date(profile.profile.created_at).toLocaleDateString()}
+                        </time>
+                      </dd>
+                    </div>
+                  </dl>
+                </section>
+                {isOwner && (
+                  <Link className="button secondary profileEdit" href="/settings">
+                    Edit Profile
+                  </Link>
                 )}
-              </section>
-              <section className="profileStatistics" aria-labelledby="profile-stats-heading">
-                <h3 id="profile-stats-heading">// NETWORK RECORD</h3>
-                <dl>
-                  <div>
-                    <dt>Connections</dt>
-                    <dd>{profile.connectionCount}</dd>
-                  </div>
-                  <div>
-                    <dt>Interactions</dt>
-                    <dd>{profile.interactionCount}</dd>
-                  </div>
-                  <div>
-                    <dt>Joined</dt>
-                    <dd>
-                      <time dateTime={profile.profile.created_at}>
-                        {new Date(profile.profile.created_at).toLocaleDateString()}
-                      </time>
-                    </dd>
-                  </div>
-                </dl>
-              </section>
-              {isOwner && (
-                <Link className="button secondary profileEdit" href="/settings">
-                  Edit Profile
-                </Link>
-              )}
-              {profile.hasMoreConnections && (
-                <p className="profileConnectionsNote">
-                  Showing the 100 strongest connections.
-                </p>
-              )}
-            </article>
-          </div>
-          <p className="profileSceneHint">
-            Drag to orbit · pinch to pan and zoom · select a connected neuron to view that player
-          </p>
+                {profile.hasMoreConnections && (
+                  <p className="profileConnectionsNote">
+                    Showing the 100 strongest connections.
+                  </p>
+                )}
+              </article>
+            </div>
+          )}
+          {!isStoreView && (
+            <p className="profileSceneHint">
+              Drag to orbit · pinch to pan and zoom · select a connected neuron to view that player
+            </p>
+          )}
         </section>
       </main>
     </>

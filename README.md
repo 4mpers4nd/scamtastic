@@ -13,9 +13,9 @@ Connect the repository to the existing Vercel project with framework preset **Ne
 ## v0.2.0 access and administration
 
 - Session-aware account navigation with accessible sign-out and admin entry.
-- Public access applications with server-side validation, duplicate protection, referral attribution, and per-IP rate limiting.
+- Public access applications with server-side validation, duplicate protection, legacy referral attribution compatibility, and per-IP rate limiting. The application form no longer accepts referral codes; player invitation codes remain supported.
 - `/admin` workflows for reviewing applications, invitations, player moderation, and append-only audit views. Historical referral attribution remains in the database.
-- `/settings` for profile preferences and invitations; `/profile/[username]` for public profiles, follows, and follower/following lists.
+- `/settings` for profile preferences and invitations; `/profile/[username]` for public profiles, follows, follower/following lists, and a Store section. `/marketplace` is the global creation-discovery foundation.
 - Anonymous visitors see the public landing page. Active players see the Network Command Center at `/` or `/dashboard`; `/game` redirects to `/dashboard`.
 
 ## v0.3.0 — Neural network
@@ -31,7 +31,7 @@ The current game does not yet emit eligible player-to-player events. Until a tru
 ## v0.4.0 — Social foundations
 
 - Authenticated players can follow/unfollow active profiles, see public follower lists, and browse a bounded recent activity feed from players they follow.
-- `/` and `/dashboard` provide profile, invitation, social, and network stats from existing data. Bits and opportunities remain clearly marked placeholders.
+- `/` is the authenticated global Network Command Center; `/dashboard` is the personal profile, invitation, social, and neural dashboard. Bits and opportunities remain clearly marked placeholders.
 - `/admin/players` is a searchable, paginated directory with individual management pages; historical referral data remains stored but its old management screens are retired.
 - Review and manually apply the follow and activity migrations to the development database only. See [`docs/SOCIAL-FOUNDATIONS.md`](./docs/SOCIAL-FOUNDATIONS.md) for the required order and access checks. These migrations have not been applied by this change.
 
@@ -45,6 +45,8 @@ The current game does not yet emit eligible player-to-player events. Until a tru
 6. Supabase Auth generates one-time invite or magic-link tokens; Resend sends the activation email, and Supabase enforces token expiry and replay protection. If delivery is not configured, approval is recorded but the UI reports the failure and allows an administrator to retry without creating another account.
 
 Player avatars are deterministic geometric SVGs generated from a random profile seed and a stored generator version; no avatar images are uploaded or stored. Players can reroll their own avatar in settings. Passwords are handled only by Supabase Auth. Bits have no real-world value; the application currently has no Bits balances or transactions.
+
+Creator storefronts and `/marketplace` currently show intentional empty states because no published-product catalog or purchasing backend exists. See [`docs/STOREFRONTS.md`](./docs/STOREFRONTS.md).
 
 No production migration or deployment has been run as part of this code change.
 
