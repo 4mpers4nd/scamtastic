@@ -46,7 +46,14 @@ function validateParameterValue(schema, value) {
   return false;
 }
 
-function normalizeParams(type, params) {
+function buildParameterError(type, key, nodeId) {
+  if (nodeId) {
+    return `Parameter "${key}" on node "${nodeId}" is invalid for node type "${type.id}"`;
+  }
+  return `Parameter "${key}" for node type "${type.id}" is invalid`;
+}
+
+function normalizeParams(type, params, nodeId = null) {
   const config = type.parameterSchema ?? {};
   const merged = { ...type.defaultParams };
   const source = assertPlainObject(params) ? params : {};
@@ -56,7 +63,7 @@ function normalizeParams(type, params) {
       throw new Error(`Unknown parameter "${key}" for node type "${type.id}"`);
     }
     if (!validateParameterValue(config[key], value)) {
-      throw new Error(`Parameter "${key}" for node type "${type.id}" is invalid`);
+      throw new Error(buildParameterError(type, key, nodeId));
     }
     merged[key] = value;
   }
@@ -66,7 +73,7 @@ function normalizeParams(type, params) {
       throw new Error(`Missing required parameter "${key}" for node type "${type.id}"`);
     }
     if (!validateParameterValue(schema, merged[key])) {
-      throw new Error(`Parameter "${key}" for node type "${type.id}" is invalid`);
+      throw new Error(buildParameterError(type, key, nodeId));
     }
   }
 

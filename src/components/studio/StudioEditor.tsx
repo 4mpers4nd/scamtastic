@@ -52,6 +52,41 @@ function cloneGraph(graph: GraphDocument): GraphDocument {
   return JSON.parse(JSON.stringify(graph)) as GraphDocument;
 }
 
+function coerceNodeParamValue(schema: { type?: string; min?: number; max?: number } | undefined, value: string | number | boolean | null | undefined) {
+  if (!schema) {
+    return value ?? '';
+  }
+
+  if (schema.type === 'number') {
+    if (typeof value === 'string' && value.trim() === '') {
+      return null;
+    }
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) {
+      return null;
+    }
+    if (typeof schema.min === 'number' && numericValue < schema.min) {
+      return null;
+    }
+    if (typeof schema.max === 'number' && numericValue > schema.max) {
+      return null;
+    }
+    return numericValue;
+  }
+
+  if (schema.type === 'boolean') {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value === 'true' || value === '1';
+    return null;
+  }
+
+  if (schema.type === 'color') {
+    return typeof value === 'string' ? value : String(value ?? '');
+  }
+
+  return typeof value === 'string' ? value : String(value ?? '');
+}
+
 export default function StudioEditor() {
   const [graph, setGraph] = useState<GraphDocument>(() => cloneGraph(parseGraph(DEFAULT_GRAPH) ?? DEFAULT_GRAPH));
   const [pendingConnection, setPendingConnection] = useState<PendingConnection | null>(null);
@@ -149,13 +184,28 @@ export default function StudioEditor() {
     commitGraph({ ...graph, nodes: [...graph.nodes, nextNode] });
   };
 
-  const updateNodeParam = (nodeId: string, key: string, value: string) => {
+  const updateNodeParam = (nodeId: string, key: string, value: string | number | boolean) => {
     setGraph((previous) => {
       const next = cloneGraph(previous);
       const node = next.nodes.find((candidate) => candidate.id === nodeId);
       if (!node) return previous;
-      node.params[key] = value;
-      return next;
+
+      const type = getNodeType(node.type);
+      const schema = type?.parameterSchema?.[key];
+      const nextValue = coerceNodeParamValue(schema, value);
+
+      if (nextValue === null) {
+        return previous;
+      }
+
+      node.params[key] = nextValue as GraphNode['params'][string];
+
+      const normalized = parseGraph(next);
+      if (!normalized) {
+        return previous;
+      }
+
+      return normalized;
     });
   };
 
@@ -474,7 +524,8 @@ export default function StudioEditor() {
                   {inputType === 'number' ? (
                     <input
                       type="number"
-                      value={Number(value ?? 0)}
+                      step="any"
+                      value={typeof value === 'number' ? value : Number(value ?? 0)}
                       onChange={(event) => updateNodeParam(selectedNode.id, key, event.target.value)}
                     />
                   ) : (
