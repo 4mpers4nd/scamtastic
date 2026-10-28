@@ -1593,3 +1593,339 @@ select:focus-visible {
     text-align: left;
   }
 }
+
+.studioPage {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 300px;
+  min-height: calc(100svh - 76px);
+  background: linear-gradient(180deg, #0d1117 0%, #101922 100%);
+}
+
+.studioSidebar,
+.studioInspector {
+  padding: 22px 18px;
+  border-right: 1px solid var(--color-border);
+  background: rgba(15, 23, 32, 0.95);
+}
+
+.studioInspector {
+  border-right: none;
+  border-left: 1px solid var(--color-border);
+}
+
+.studioBrandRow,
+.studioHeader,
+.studioPreviewHeader,
+.studioHeaderActions,
+.studioToolbar,
+.studioField {
+  display: flex;
+  align-items: center;
+}
+
+.studioBrandRow,
+.studioPreviewHeader,
+.studioHeader {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.studioBrand {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.studioVersion,
+.studioInspectorMeta,
+.studioHeaderActions span,
+.studioPreviewHeader span {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.studioToolbar {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.studioLibrary,
+.studioSavedProjects {
+  margin-top: 18px;
+}
+
+.studioLibrary h3,
+.studioSavedProjects h3,
+.studioInspector h3,
+.studioPreviewHeader h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.studioLibrary ul,
+.studioSavedProjects ul {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.studioLibrary button,
+.studioSavedProjects button,
+.studioDeleteButton,
+.studioPort,
+.studioNodeHeader button {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.studioLibrary button,
+.studioSavedProjects button {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+}
+
+.studioLibrary button:hover,
+.studioSavedProjects button:hover,
+.studioPort:hover {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+}
+
+.studioWorkspace {
+  padding: 18px 18px 20px;
+}
+
+.studioHeader {
+  margin-bottom: 18px;
+}
+
+.studioNameInput {
+  width: min(100%, 440px);
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: rgba(13, 17, 23, 0.82);
+  color: var(--color-text-primary);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.studioHeaderActions {
+  gap: 10px;
+}
+
+.studioCanvasShell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  gap: 18px;
+  height: calc(100svh - 170px);
+}
+
+.studioCanvas {
+  position: relative;
+  overflow: hidden;
+  min-height: 500px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: radial-gradient(circle at 30% 20%, rgba(88, 220, 235, 0.1), transparent 20%), #0e1720;
+}
+
+.studioConnections {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.studioConnectionPath {
+  fill: none;
+  stroke: rgba(88, 220, 235, 0.8);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.studioConnectionDeleteAction {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.studioConnectionDeleteAction circle {
+  fill: #1a242e;
+  stroke: var(--color-cyan);
+  stroke-width: 1.5;
+}
+
+.studioNode {
+  position: absolute;
+  width: 180px;
+  padding: 10px 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: rgba(27, 34, 42, 0.95);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+.studioNode.selected {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 0 1px rgba(88, 220, 235, 0.6), 0 16px 40px rgba(88, 220, 235, 0.18);
+}
+
+.studioNodeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-weight: 700;
+}
+
+.studioDeleteButton {
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.studioPortsRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.studioPortsColumn {
+  display: grid;
+  gap: 6px;
+  width: 48%;
+}
+
+.studioPort {
+  padding: 7px 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.studioPortInput {
+  border-color: rgba(167, 139, 250, 0.6);
+}
+
+.studioPortOutput {
+  border-color: rgba(88, 220, 235, 0.6);
+}
+
+.studioPreviewPanel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: rgba(17, 25, 34, 0.95);
+}
+
+.studioPreviewScene {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+}
+
+.studioPreviewInner {
+  display: grid;
+  place-items: center;
+  width: min(100%, 160px);
+  height: min(100%, 110px);
+  border: 1px solid;
+  border-radius: 18px;
+  color: rgba(255,255,255,0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+}
+
+.studioStatus {
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.studioStatus.success {
+  background: rgba(28, 86, 62, 0.32);
+  color: #9af5d0;
+}
+
+.studioStatus.error {
+  background: rgba(124, 46, 54, 0.28);
+  color: #ffc7d0;
+}
+
+.studioField {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.studioField input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: rgba(13, 17, 23, 0.82);
+  color: var(--color-text-primary);
+}
+
+.studioEmptyInspector {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 1100px) {
+  .studioPage {
+    grid-template-columns: 1fr;
+  }
+
+  .studioSidebar,
+  .studioInspector {
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .studioCanvasShell {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .studioHeader,
+  .studioHeaderActions,
+  .studioBrandRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .studioNameInput {
+    width: 100%;
+  }
+
+  .studioNode {
+    width: 150px;
+  }
+}
