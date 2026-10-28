@@ -1,0 +1,127 @@
+# Scamtastic Studio — Graph Editor Reliability Overhaul
+
+Work exclusively on the existing `development` branch of `4mpers4nd/scamtastic`.
+
+Do not modify, merge into, or deploy production `main`. Inspect the existing implementation before making changes. Preserve unrelated work and follow the repository's existing architecture.
+
+## Objective
+
+Improve the existing Scamtastic Studio node editor's visual clarity, graph connections, parameter validation, and error recovery.
+
+This is a functional repair of the existing implementation, not a complete rewrite.
+
+## 1. Simplify the editor's appearance
+
+The editor currently has excessive cyan glow effects around UI elements and preview surfaces, making it difficult to distinguish editor styling from effects produced by the user's graph.
+
+- Remove decorative glow, neon shadows, and unnecessary animated effects from editor panels, buttons, node containers, borders, and canvas UI.
+- Use a restrained dark-slate interface with subtle borders and clear contrast.
+- Use a simple border or background change to indicate node selection.
+- Keep editor chrome visually neutral.
+- Graph-generated effects must appear in the preview, not as decorative styling on editor UI.
+- Preserve a clear preview area so the user can distinguish the graph's output from the surrounding interface.
+- Do not remove legitimate visual effects implemented by graph nodes.
+
+Inspect `src/app/v040.css` and the Studio component styles before changing them. Avoid broad global CSS changes that could affect unrelated Scamtastic pages.
+
+## 2. Implement real node sockets and graph connections
+
+Inspect `src/lib/studio/graph-engine.mjs` and `src/components/studio/StudioEditor.tsx` to understand the existing node and port definitions.
+
+Implement actual connection sockets attached to each node.
+
+Requirements:
+- Render input sockets along the left edge of their respective nodes.
+- Render output sockets along the right edge.
+- Position sockets relative to the node and its layout, not as detached elements elsewhere on the canvas.
+- Keep sockets correctly positioned when nodes move or resize.
+- Draw connections between the centers of the relevant sockets.
+- Update connection geometry when either connected node moves.
+- Make sockets distinguishable by port type and accessible labels.
+- Provide a clear interaction for creating connections between compatible sockets.
+- Prevent incompatible connections, duplicate connections, invalid endpoint references, and other invalid graph states according to the graph engine's rules.
+- Show a useful explanation when a connection is rejected.
+- Render existing valid connections correctly when loading a graph.
+
+Use the existing typed-port architecture. Do not invent incompatible parallel port definitions or duplicate the graph engine's validation logic in the UI.
+
+If the existing port model is insufficient, extend it in a backward-compatible way and add tests.
+
+## 3. Repair parameter validation and updates
+
+The current editor displays an intensity value of `0.73` for `core.glow`, but the preview reports:
+
+`Parameter "intensity" for node type "core.glow" is invalid`
+
+Trace the complete data flow:
+1. Node parameter schema and defaults.
+2. Inspector field rendering.
+3. Parameter update handlers.
+4. Graph state and undo/redo.
+5. Graph validation.
+6. Preview evaluation.
+7. Saved graph serialization and loading.
+
+Identify and fix the actual root cause.
+
+Requirements:
+- The Inspector must use the same parameter definitions and types as the graph engine.
+- Valid numeric values must remain valid when edited.
+- Respect the declared bounds, types, defaults, and validation rules for each parameter.
+- Handle intermediate numeric input safely without leaving permanent invalid state.
+- Reset must restore the schema-defined default and clear related validation errors when the graph is valid again.
+- Ensure parameter updates preserve all unrelated parameters.
+- Ensure undo/redo restores both parameter values and the corresponding valid graph state.
+- Verify that changing a parameter doesn't create an incompatible serialized representation.
+- Do not weaken validation globally or suppress errors to make the preview appear functional.
+
+Inspect whether the reported error comes from a schema mismatch, incorrect update behavior, stale state, invalid defaults, or another cause. Fix the cause and explain it in the completion report.
+
+## 4. Improve error recovery and graph validation
+
+Differentiate between:
+- A malformed graph that cannot safely be processed.
+- An incomplete graph that is still being constructed.
+- A valid graph that can be evaluated.
+
+Requirements:
+- An invalid parameter should produce a precise diagnostic identifying the node and parameter.
+- An invalid node must not crash the entire editor.
+- Unrelated valid nodes and edits should remain usable.
+- Correcting a parameter should trigger revalidation and preview reevaluation.
+- The preview should recover automatically when the graph becomes valid.
+- Validation messages must not remain stale after the underlying problem has been corrected.
+- Missing connections should not be treated as fatal unless required by the node's actual schema.
+- Malformed imported or saved graphs must be handled safely.
+
+Preserve the graph engine's existing security and resource limits. Do not introduce `eval`, `new Function`, arbitrary code execution, or unsafe deserialization.
+
+## 5. Tests and compatibility
+
+Add or update tests for:
+- The default Glow intensity being valid.
+- Updating Glow intensity with valid values.
+- Rejecting values outside declared constraints.
+- Resetting an invalid parameter.
+- Preserving unrelated node parameters.
+- Undoing and redoing parameter changes.
+- Rendering and updating connection endpoints after nodes move.
+- Rejecting incompatible connections.
+- Loading graphs with valid connections.
+- Recovering preview evaluation after correcting a validation error.
+- Handling incomplete graphs without treating them as malformed.
+
+Check compatibility with existing local drafts and the current graph schema. Do not silently discard existing projects or change the serialization format unnecessarily.
+
+Run the repository's relevant tests, TypeScript checks, and production build if available. Fix regressions introduced by this work.
+
+## Completion report
+
+Summarize:
+1. The root cause of the `core.glow` intensity validation error.
+2. The changes made to node sockets and connections.
+3. The visual styling changes.
+4. Tests and build commands actually run, including their results.
+5. Any remaining limitations.
+
+Do not claim that checks passed unless they were actually executed successfully.
